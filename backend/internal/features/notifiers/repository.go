@@ -44,6 +44,14 @@ func (r *NotifierRepository) Save(notifier *Notifier) (*Notifier, error) {
 			if notifier.MattermostNotifier != nil {
 				notifier.MattermostNotifier.NotifierID = notifier.ID
 			}
+		case NotifierTypeDingTalk:
+			if notifier.DingTalkNotifier != nil {
+				notifier.DingTalkNotifier.NotifierID = notifier.ID
+			}
+		case NotifierTypeFeishu:
+			if notifier.FeishuNotifier != nil {
+				notifier.FeishuNotifier.NotifierID = notifier.ID
+			}
 		}
 
 		if notifier.ID == uuid.Nil {
@@ -56,6 +64,8 @@ func (r *NotifierRepository) Save(notifier *Notifier) (*Notifier, error) {
 					"DiscordNotifier",
 					"TeamsNotifier",
 					"MattermostNotifier",
+					"DingTalkNotifier",
+					"FeishuNotifier",
 				).
 				Create(notifier).Error; err != nil {
 				return err
@@ -70,6 +80,8 @@ func (r *NotifierRepository) Save(notifier *Notifier) (*Notifier, error) {
 					"DiscordNotifier",
 					"TeamsNotifier",
 					"MattermostNotifier",
+					"DingTalkNotifier",
+					"FeishuNotifier",
 				).
 				Save(notifier).Error; err != nil {
 				return err
@@ -126,6 +138,20 @@ func (r *NotifierRepository) Save(notifier *Notifier) (*Notifier, error) {
 					return err
 				}
 			}
+		case NotifierTypeDingTalk:
+			if notifier.DingTalkNotifier != nil {
+				notifier.DingTalkNotifier.NotifierID = notifier.ID
+				if err := tx.Save(notifier.DingTalkNotifier).Error; err != nil {
+					return err
+				}
+			}
+		case NotifierTypeFeishu:
+			if notifier.FeishuNotifier != nil {
+				notifier.FeishuNotifier.NotifierID = notifier.ID
+				if err := tx.Save(notifier.FeishuNotifier).Error; err != nil {
+					return err
+				}
+			}
 		}
 
 		return nil
@@ -150,6 +176,8 @@ func (r *NotifierRepository) FindByID(ctx context.Context, id uuid.UUID) (*Notif
 		Preload("DiscordNotifier").
 		Preload("TeamsNotifier").
 		Preload("MattermostNotifier").
+		Preload("DingTalkNotifier").
+		Preload("FeishuNotifier").
 		Where("id = ?", id).
 		First(&notifier).Error; err != nil {
 		return nil, err
@@ -180,6 +208,8 @@ func (r *NotifierRepository) FindByWorkspaceID(workspaceID uuid.UUID) ([]*Notifi
 		Preload("DiscordNotifier").
 		Preload("TeamsNotifier").
 		Preload("MattermostNotifier").
+		Preload("DingTalkNotifier").
+		Preload("FeishuNotifier").
 		Where("workspace_id = ?", workspaceID).
 		Order("name ASC").
 		Find(&notifiers).Error; err != nil {
@@ -231,6 +261,18 @@ func (r *NotifierRepository) Delete(notifier *Notifier) error {
 		case NotifierTypeMattermost:
 			if notifier.MattermostNotifier != nil {
 				if err := tx.Delete(notifier.MattermostNotifier).Error; err != nil {
+					return err
+				}
+			}
+		case NotifierTypeDingTalk:
+			if notifier.DingTalkNotifier != nil {
+				if err := tx.Delete(notifier.DingTalkNotifier).Error; err != nil {
+					return err
+				}
+			}
+		case NotifierTypeFeishu:
+			if notifier.FeishuNotifier != nil {
+				if err := tx.Delete(notifier.FeishuNotifier).Error; err != nil {
 					return err
 				}
 			}

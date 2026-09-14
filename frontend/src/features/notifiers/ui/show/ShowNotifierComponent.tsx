@@ -2,7 +2,9 @@ import { type Notifier, NotifierType } from '../../../../entity/notifiers';
 import { getNotifierLogoFromType } from '../../../../entity/notifiers/models/getNotifierLogoFromType';
 import { getNotifierNameFromType } from '../../../../entity/notifiers/models/getNotifierNameFromType';
 import { ShowDiscordNotifierComponent } from './notifier/ShowDiscordNotifierComponent';
+import { ShowDingTalkNotifierComponent } from './notifier/ShowDingTalkNotifierComponent';
 import { ShowEmailNotifierComponent } from './notifier/ShowEmailNotifierComponent';
+import { ShowFeishuNotifierComponent } from './notifier/ShowFeishuNotifierComponent';
 import { ShowMattermostNotifierComponent } from './notifier/ShowMattermostNotifierComponent';
 import { ShowSlackNotifierComponent } from './notifier/ShowSlackNotifierComponent';
 import { ShowTeamsNotifierComponent } from './notifier/ShowTeamsNotifierComponent';
@@ -50,6 +52,14 @@ export function ShowNotifierComponent({ notifier }: Props) {
 
         {notifier?.notifierType === NotifierType.MATTERMOST && (
           <ShowMattermostNotifierComponent notifier={notifier} />
+        )}
+
+        {notifier?.notifierType === NotifierType.DINGTALK && (
+          <ShowDingTalkNotifierComponent notifier={notifier} />
+        )}
+
+        {notifier?.notifierType === NotifierType.FEISHU && (
+          <ShowFeishuNotifierComponent notifier={notifier} />
         )}
       </div>
     </div>

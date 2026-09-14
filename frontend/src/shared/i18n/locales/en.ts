@@ -843,6 +843,8 @@ const en = {
     typeDiscord: 'Discord',
     typeTeams: 'Teams',
     typeMattermost: 'Mattermost',
+    typeDingTalk: 'DingTalk',
+    typeFeishu: 'Feishu',
     namePlaceholder: 'Chat with me',
     enterName: 'Enter name...',
     testSent: 'Test notification sent!',
@@ -967,6 +969,17 @@ const en = {
     mattermostBotHelpStep1: '1. Integrations - Bot Accounts - Add Bot Account',
     mattermostBotHelpStep2: '2. Copy the token shown once after creation',
     mattermostBotHelpStep3: '3. Add the bot to the team and to the channel',
+    howToConnectDingTalk: 'How to connect DingTalk?',
+    dingTalkWebhookUrlTooltip:
+      'Custom robot webhook URL from DingTalk group settings (Group Settings - Group Assistant - Add Robot - Custom)',
+    dingTalkSecretTooltip:
+      'Optional. Signing secret for the DingTalk custom robot. Leave empty if signing is not enabled.',
+    howToConnectFeishu: 'How to connect Feishu?',
+    feishuWebhookUrlTooltip:
+      'Custom bot webhook URL from Feishu group settings (Group Settings - Group Bots - Add Bot - Custom Bot)',
+    feishuSecretTooltip:
+      'Optional. Signing secret for the Feishu custom bot. Leave empty if signing is not enabled.',
+    signingSecret: 'Signing secret',
   },
   backups: {
     restoreCheckQueued: 'Restore check queued',

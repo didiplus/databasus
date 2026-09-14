@@ -16,6 +16,10 @@ export const getNotifierNameFromType = (type: NotifierType) => {
       return 'Teams';
     case NotifierType.MATTERMOST:
       return 'Mattermost';
+    case NotifierType.DINGTALK:
+      return 'DingTalk';
+    case NotifierType.FEISHU:
+      return 'Feishu';
     default:
       return '';
   }

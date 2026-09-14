@@ -1,6 +1,8 @@
 import type { NotifierType } from './NotifierType';
 import type { DiscordNotifier } from './discord/DiscordNotifier';
 import type { EmailNotifier } from './email/EmailNotifier';
+import type { DingTalkNotifier } from './dingtalk/DingTalkNotifier';
+import type { FeishuNotifier } from './feishu/FeishuNotifier';
 import type { MattermostNotifier } from './mattermost/MattermostNotifier';
 import type { SlackNotifier } from './slack/SlackNotifier';
 import type { TeamsNotifier } from './teams/TeamsNotifier';
@@ -22,4 +24,6 @@ export interface Notifier {
   discordNotifier?: DiscordNotifier;
   teamsNotifier?: TeamsNotifier;
   mattermostNotifier?: MattermostNotifier;
+  dingTalkNotifier?: DingTalkNotifier;
+  feishuNotifier?: FeishuNotifier;
 }

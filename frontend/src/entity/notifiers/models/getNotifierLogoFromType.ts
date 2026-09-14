@@ -16,6 +16,10 @@ export const getNotifierLogoFromType = (type: NotifierType) => {
       return '/icons/notifiers/teams.svg';
     case NotifierType.MATTERMOST:
       return '/icons/notifiers/mattermost.svg';
+    case NotifierType.DINGTALK:
+      return '/icons/notifiers/dingtalk.svg';
+    case NotifierType.FEISHU:
+      return '/icons/notifiers/feishu.svg';
     default:
       return '';
   }

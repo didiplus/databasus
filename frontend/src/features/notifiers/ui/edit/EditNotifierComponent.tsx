@@ -7,8 +7,10 @@ import {
   NotifierType,
   WebhookMethod,
   notifierApi,
+  validateDingTalkNotifier,
   validateDiscordNotifier,
   validateEmailNotifier,
+  validateFeishuNotifier,
   validateMattermostNotifier,
   validateSlackNotifier,
   validateTeamsNotifier,
@@ -19,7 +21,9 @@ import { getNotifierLogoFromType } from '../../../../entity/notifiers/models/get
 import { useTranslation } from '../../../../shared/i18n';
 import { ToastHelper } from '../../../../shared/toast';
 import { EditDiscordNotifierComponent } from './notifiers/EditDiscordNotifierComponent';
+import { EditDingTalkNotifierComponent } from './notifiers/EditDingTalkNotifierComponent';
 import { EditEmailNotifierComponent } from './notifiers/EditEmailNotifierComponent';
+import { EditFeishuNotifierComponent } from './notifiers/EditFeishuNotifierComponent';
 import { EditMattermostNotifierComponent } from './notifiers/EditMattermostNotifierComponent';
 import { EditSlackNotifierComponent } from './notifiers/EditSlackNotifierComponent';
 import { EditTeamsNotifierComponent } from './notifiers/EditTeamsNotifierComponent';
@@ -104,6 +108,8 @@ export function EditNotifierComponent({
     notifier.slackNotifier = undefined;
     notifier.discordNotifier = undefined;
     notifier.mattermostNotifier = undefined;
+    notifier.dingTalkNotifier = undefined;
+    notifier.feishuNotifier = undefined;
 
     if (type === NotifierType.TELEGRAM) {
       notifier.telegramNotifier = {
@@ -160,6 +166,20 @@ export function EditNotifierComponent({
         overrideUsername: '',
         overrideIconUrl: '',
         isInsecureSkipVerify: false,
+      };
+    }
+
+    if (type === NotifierType.DINGTALK) {
+      notifier.dingTalkNotifier = {
+        webhookUrl: '',
+        secret: '',
+      };
+    }
+
+    if (type === NotifierType.FEISHU) {
+      notifier.feishuNotifier = {
+        webhookUrl: '',
+        secret: '',
       };
     }
 
@@ -228,6 +248,14 @@ export function EditNotifierComponent({
       return validateMattermostNotifier(!notifier.id, notifier.mattermostNotifier);
     }
 
+    if (notifier.notifierType === NotifierType.DINGTALK && notifier.dingTalkNotifier) {
+      return validateDingTalkNotifier(!notifier.id, notifier.dingTalkNotifier);
+    }
+
+    if (notifier.notifierType === NotifierType.FEISHU && notifier.feishuNotifier) {
+      return validateFeishuNotifier(!notifier.id, notifier.feishuNotifier);
+    }
+
     return false;
   };
 
@@ -266,6 +294,8 @@ export function EditNotifierComponent({
               { label: t('notifiers.typeDiscord'), value: NotifierType.DISCORD },
               { label: t('notifiers.typeTeams'), value: NotifierType.TEAMS },
               { label: t('notifiers.typeMattermost'), value: NotifierType.MATTERMOST },
+              { label: t('notifiers.typeDingTalk'), value: NotifierType.DINGTALK },
+              { label: t('notifiers.typeFeishu'), value: NotifierType.FEISHU },
             ]}
             onChange={(value) => {
               setNotifierType(value);
@@ -349,6 +379,28 @@ export function EditNotifierComponent({
 
         {notifier?.notifierType === NotifierType.MATTERMOST && (
           <EditMattermostNotifierComponent
+            notifier={notifier}
+            setNotifier={setNotifier}
+            setUnsaved={() => {
+              setIsUnsaved(true);
+              setIsTestNotificationSuccess(false);
+            }}
+          />
+        )}
+
+        {notifier?.notifierType === NotifierType.DINGTALK && (
+          <EditDingTalkNotifierComponent
+            notifier={notifier}
+            setNotifier={setNotifier}
+            setUnsaved={() => {
+              setIsUnsaved(true);
+              setIsTestNotificationSuccess(false);
+            }}
+          />
+        )}
+
+        {notifier?.notifierType === NotifierType.FEISHU && (
+          <EditFeishuNotifierComponent
             notifier={notifier}
             setNotifier={setNotifier}
             setUnsaved={() => {

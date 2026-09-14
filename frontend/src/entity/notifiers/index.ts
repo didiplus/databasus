@@ -26,3 +26,8 @@ export { validateTeamsNotifier } from './models/teams/validateTeamsNotifier';
 export type { MattermostNotifier } from './models/mattermost/MattermostNotifier';
 export { MattermostDeliveryMode } from './models/mattermost/MattermostDeliveryMode';
 export { validateMattermostNotifier } from './models/mattermost/validateMattermostNotifier';
+export type { DingTalkNotifier } from './models/dingtalk/DingTalkNotifier';
+export { validateDingTalkNotifier } from './models/dingtalk/validateDingTalkNotifier';
+
+export type { FeishuNotifier } from './models/feishu/FeishuNotifier';
+export { validateFeishuNotifier } from './models/feishu/validateFeishuNotifier';

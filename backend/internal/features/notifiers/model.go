@@ -8,7 +8,9 @@ import (
 
 	notifier_models "databasus-backend/internal/features/notifiers/models"
 	discord_notifier "databasus-backend/internal/features/notifiers/models/discord"
+	dingtalk_notifier "databasus-backend/internal/features/notifiers/models/dingtalk"
 	"databasus-backend/internal/features/notifiers/models/email_notifier"
+	feishu_notifier "databasus-backend/internal/features/notifiers/models/feishu"
 	mattermost_notifier "databasus-backend/internal/features/notifiers/models/mattermost"
 	slack_notifier "databasus-backend/internal/features/notifiers/models/slack"
 	teams_notifier "databasus-backend/internal/features/notifiers/models/teams"
@@ -32,6 +34,8 @@ type Notifier struct {
 	DiscordNotifier    *discord_notifier.DiscordNotifier       `json:"discordNotifier"        gorm:"foreignKey:NotifierID"`
 	TeamsNotifier      *teams_notifier.TeamsNotifier           `json:"teamsNotifier,omitzero" gorm:"foreignKey:NotifierID;constraint:OnDelete:CASCADE"`
 	MattermostNotifier *mattermost_notifier.MattermostNotifier `json:"mattermostNotifier"     gorm:"foreignKey:NotifierID"`
+	DingTalkNotifier   *dingtalk_notifier.DingTalkNotifier     `json:"dingTalkNotifier"       gorm:"foreignKey:NotifierID"`
+	FeishuNotifier     *feishu_notifier.FeishuNotifier         `json:"feishuNotifier"         gorm:"foreignKey:NotifierID"`
 }
 
 func (n *Notifier) TableName() string {
@@ -104,6 +108,14 @@ func (n *Notifier) Update(incoming *Notifier) {
 		if n.MattermostNotifier != nil && incoming.MattermostNotifier != nil {
 			n.MattermostNotifier.Update(incoming.MattermostNotifier)
 		}
+	case NotifierTypeDingTalk:
+		if n.DingTalkNotifier != nil && incoming.DingTalkNotifier != nil {
+			n.DingTalkNotifier.Update(incoming.DingTalkNotifier)
+		}
+	case NotifierTypeFeishu:
+		if n.FeishuNotifier != nil && incoming.FeishuNotifier != nil {
+			n.FeishuNotifier.Update(incoming.FeishuNotifier)
+		}
 	}
 }
 
@@ -123,6 +135,10 @@ func (n *Notifier) getSpecificNotifier() NotificationSender {
 		return n.TeamsNotifier
 	case NotifierTypeMattermost:
 		return n.MattermostNotifier
+	case NotifierTypeDingTalk:
+		return n.DingTalkNotifier
+	case NotifierTypeFeishu:
+		return n.FeishuNotifier
 	default:
 		panic("unknown notifier type: " + string(n.NotifierType))
 	}
