@@ -7,6 +7,7 @@ import {
   getStorageLogoFromType,
   storageApi,
 } from '../../../../entity/storages';
+import { useTranslation } from '../../../../shared/i18n';
 import { ToastHelper } from '../../../../shared/toast';
 import { EditAzureBlobStorageComponent } from './storages/EditAzureBlobStorageComponent';
 import { EditFTPStorageComponent } from './storages/EditFTPStorageComponent';
@@ -37,6 +38,8 @@ export function EditStorageComponent({
   editingStorage,
   onChanged,
 }: Props) {
+  const { t } = useTranslation();
+
   const [storage, setStorage] = useState<Storage | undefined>();
   const [isUnsaved, setIsUnsaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -71,8 +74,8 @@ export function EditStorageComponent({
       await storageApi.testStorageConnectionDirect(storage);
       setIsTestConnectionSuccess(true);
       ToastHelper.showToast({
-        title: 'Connection test successful!',
-        description: 'Storage connection tested successfully',
+        title: t('storages.connectionTestSuccess'),
+        description: t('storages.connectionTestSuccessMsg'),
       });
     } catch (e) {
       const errorMessage = (e as Error).message;
@@ -313,21 +316,21 @@ export function EditStorageComponent({
   if (!storage) return <div />;
 
   const storageTypeOptions = [
-    { label: 'Local storage', value: StorageType.LOCAL },
-    { label: 'S3', value: StorageType.S3 },
-    { label: 'Google Drive', value: StorageType.GOOGLE_DRIVE },
-    { label: 'NAS', value: StorageType.NAS },
-    { label: 'Azure Blob Storage', value: StorageType.AZURE_BLOB },
-    { label: 'FTP', value: StorageType.FTP },
-    { label: 'SFTP', value: StorageType.SFTP },
-    { label: 'Rclone', value: StorageType.RCLONE },
+    { label: t('storages.typeLocal'), value: StorageType.LOCAL },
+    { label: t('storages.typeS3'), value: StorageType.S3 },
+    { label: t('storages.typeGoogleDrive'), value: StorageType.GOOGLE_DRIVE },
+    { label: t('storages.typeNas'), value: StorageType.NAS },
+    { label: t('storages.typeAzureBlob'), value: StorageType.AZURE_BLOB },
+    { label: t('storages.typeFtp'), value: StorageType.FTP },
+    { label: t('storages.typeSftp'), value: StorageType.SFTP },
+    { label: t('storages.typeRclone'), value: StorageType.RCLONE },
   ];
 
   return (
     <div>
       {isShowName && (
         <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-          <div className="mb-1 min-w-[110px] sm:mb-0">Name</div>
+          <div className="mb-1 min-w-[110px] sm:mb-0">{t('common.name')}</div>
 
           <Input
             value={storage?.name || ''}
@@ -337,13 +340,13 @@ export function EditStorageComponent({
             }}
             size="small"
             className="w-full max-w-[250px]"
-            placeholder="My Storage"
+            placeholder={t('storages.namePlaceholder')}
           />
         </div>
       )}
 
       <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-        <div className="mb-1 min-w-[110px] sm:mb-0">Type</div>
+        <div className="mb-1 min-w-[110px] sm:mb-0">{t('common.type')}</div>
 
         <div className="flex items-center">
           <Select
@@ -455,7 +458,7 @@ export function EditStorageComponent({
             type="primary"
             onClick={testConnection}
           >
-            Test connection
+            {t('common.testConnection')}
           </Button>
         ) : (
           <div />
@@ -469,7 +472,7 @@ export function EditStorageComponent({
             type="primary"
             onClick={save}
           >
-            Save
+            {t('common.save')}
           </Button>
         ) : (
           <div />
@@ -484,7 +487,7 @@ export function EditStorageComponent({
             ghost
             onClick={onClose}
           >
-            Cancel
+            {t('common.cancel')}
           </Button>
         ) : (
           <div />

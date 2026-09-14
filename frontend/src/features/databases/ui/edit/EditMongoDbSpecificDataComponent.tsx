@@ -12,6 +12,7 @@ import {
 import { MongodbConnectionStringParser } from '../../../../entity/databases/model/mongodb/MongodbConnectionStringParser';
 import { NAME_LIST_TOKEN_SEPARATORS, normalizeNameList } from '../../../../shared/lib';
 import { ClipboardHelper } from '../../../../shared/lib/ClipboardHelper';
+import { useTranslation } from '../../../../shared/i18n';
 import { ToastHelper } from '../../../../shared/toast';
 import { ClipboardPasteModalComponent } from '../../../../shared/ui';
 import { AdvancedSettingsToggleComponent } from './AdvancedSettingsToggleComponent';
@@ -47,6 +48,7 @@ export const EditMongoDbSpecificDataComponent = ({
   onSaved,
   isShowDbName = true,
 }: Props) => {
+  const { t } = useTranslation();
   const { message } = App.useApp();
 
   const [editingDatabase, setEditingDatabase] = useState<Database>();
@@ -70,7 +72,7 @@ export const EditMongoDbSpecificDataComponent = ({
     const trimmedText = text.trim();
 
     if (!trimmedText) {
-      message.error('Clipboard is empty');
+      message.error(t('clipboard.clipboardEmpty'));
       return;
     }
 
@@ -108,9 +110,9 @@ export const EditMongoDbSpecificDataComponent = ({
     setIsConnectionTested(false);
 
     if (!result.password) {
-      message.warning('Connection string parsed successfully. Please enter the password manually.');
+      message.warning(t('databases.connectionStringParsedPasswordNeeded'));
     } else {
-      message.success('Connection string parsed successfully');
+      message.success(t('databases.connectionStringParsed'));
     }
   };
 
@@ -124,7 +126,7 @@ export const EditMongoDbSpecificDataComponent = ({
       const text = await ClipboardHelper.readFromClipboard();
       applyConnectionString(text);
     } catch {
-      message.error('Failed to read clipboard. Please check browser permissions.');
+      message.error(t('clipboard.failedReadClipboard'));
     }
   };
 
@@ -145,8 +147,8 @@ export const EditMongoDbSpecificDataComponent = ({
       await databaseApi.testDatabaseConnectionDirect(trimmedDatabase);
       setIsConnectionTested(true);
       ToastHelper.showToast({
-        title: 'Connection test passed',
-        description: 'You can continue with the next step',
+        title: t('databases.connectionTestPassed'),
+        description: t('databases.canContinueNextStep'),
       });
     } catch (e) {
       setIsConnectionFailed(true);
@@ -228,12 +230,12 @@ export const EditMongoDbSpecificDataComponent = ({
           onClick={parseFromClipboard}
         >
           <CopyOutlined className="mr-1" />
-          Parse from clipboard
+          {t('databases.parseFromClipboard')}
         </div>
       </div>
 
       <div className="mb-1 flex w-full items-center">
-        <div className="min-w-[150px]">Host</div>
+        <div className="min-w-[150px]">{t('databases.host')}</div>
         <Input
           value={editingDatabase.mongodb?.host}
           onChange={(e) => {
@@ -258,23 +260,23 @@ export const EditMongoDbSpecificDataComponent = ({
         <div className="mb-1 flex">
           <div className="min-w-[150px]" />
           <div className="max-w-[200px] text-xs text-gray-500 dark:text-gray-400">
-            Please{' '}
+            {t('databases.please')}{' '}
             <a
               href="https://databasus.com/faq/localhost"
               target="_blank"
               rel="noreferrer"
               className="!text-blue-600 dark:!text-blue-400"
             >
-              read this document
+              {t('databases.readThisDocument')}
             </a>{' '}
-            to study how to backup local database
+            {t('databases.backupLocalDbHint')}
           </div>
         </div>
       )}
 
       {!isSrvConnection && (
         <div className="mb-1 flex w-full items-center">
-          <div className="min-w-[150px]">Port</div>
+          <div className="min-w-[150px]">{t('databases.port')}</div>
           <InputNumber
             type="number"
             value={editingDatabase.mongodb?.port}
@@ -295,7 +297,7 @@ export const EditMongoDbSpecificDataComponent = ({
       )}
 
       <div className="mb-1 flex w-full items-center">
-        <div className="min-w-[150px]">Username</div>
+        <div className="min-w-[150px]">{t('databases.username')}</div>
         <Input
           value={editingDatabase.mongodb?.username}
           onChange={(e) => {
@@ -314,7 +316,7 @@ export const EditMongoDbSpecificDataComponent = ({
       </div>
 
       <div className="mb-1 flex w-full items-center">
-        <div className="min-w-[150px]">Password</div>
+        <div className="min-w-[150px]">{t('common.password')}</div>
         <Input.Password
           value={editingDatabase.mongodb?.password}
           onChange={(e) => {
@@ -338,7 +340,7 @@ export const EditMongoDbSpecificDataComponent = ({
 
       {isShowDbName && (
         <div className="mb-1 flex w-full items-center">
-          <div className="min-w-[150px]">DB name</div>
+          <div className="min-w-[150px]">{t('databases.dbName')}</div>
           <Input
             value={editingDatabase.mongodb?.database}
             onChange={(e) => {
@@ -358,7 +360,7 @@ export const EditMongoDbSpecificDataComponent = ({
       )}
 
       <div className="mb-1 flex w-full items-center">
-        <div className="min-w-[150px]">Use HTTPS</div>
+        <div className="min-w-[150px]">{t('databases.useHttps')}</div>
         <Switch
           checked={editingDatabase.mongodb?.isHttps}
           onChange={(checked) => {
@@ -375,7 +377,7 @@ export const EditMongoDbSpecificDataComponent = ({
       </div>
 
       <div className="mb-5 flex w-full items-center">
-        <div className="min-w-[150px]">CPU count</div>
+        <div className="min-w-[150px]">{t('databases.cpuCount')}</div>
         <div className="flex items-center">
           <InputNumber
             min={1}
@@ -396,7 +398,7 @@ export const EditMongoDbSpecificDataComponent = ({
 
           <Tooltip
             className="cursor-pointer"
-            title="Number of CPU cores to use for backup and restore operations. Higher values may speed up operations but use more resources."
+            title={t('databases.cpuCountTooltip')}
           >
             <InfoCircleOutlined className="ml-2" style={{ color: 'gray' }} />
           </Tooltip>
@@ -425,7 +427,7 @@ export const EditMongoDbSpecificDataComponent = ({
           />
 
           <div className="mb-1 flex w-full items-center">
-            <div className="min-w-[150px]">Use SRV connection</div>
+            <div className="min-w-[150px]">{t('databases.useSrvConnection')}</div>
             <div className="flex items-center">
               <Switch
                 checked={editingDatabase.mongodb?.isSrv || false}
@@ -445,8 +447,8 @@ export const EditMongoDbSpecificDataComponent = ({
                 className="cursor-pointer"
                 title={
                   isTunnelEnabled
-                    ? 'Not available over an SSH tunnel - SRV resolves its own host list and bypasses the forwarded port.'
-                    : 'Enable for MongoDB Atlas SRV connections (mongodb+srv://). Port is not required for SRV connections.'
+                    ? t('databases.srvNotAvailableTunnel')
+                    : t('databases.srvEnableHint')
                 }
               >
                 <InfoCircleOutlined className="ml-2" style={{ color: 'gray' }} />
@@ -455,7 +457,7 @@ export const EditMongoDbSpecificDataComponent = ({
           </div>
 
           <div className="mb-1 flex w-full items-center">
-            <div className="min-w-[150px]">Direct connection</div>
+            <div className="min-w-[150px]">{t('databases.directConnection')}</div>
             <div className="flex items-center">
               {/* Shown as on but never written: the backend forces it per connection, so the
                   stored value still applies once the tunnel is switched off. */}
@@ -477,8 +479,8 @@ export const EditMongoDbSpecificDataComponent = ({
                 className="cursor-pointer"
                 title={
                   isTunnelEnabled
-                    ? 'Forced on while the SSH tunnel is enabled - a tunnel exposes a single address, so replica set discovery cannot be used.'
-                    : 'Connect directly to a single server, skipping replica set discovery. Useful when the server is behind a load balancer, proxy or tunnel.'
+                    ? t('databases.directForcedOnTunnel')
+                    : t('databases.directConnectHint')
                 }
               >
                 <InfoCircleOutlined className="ml-2" style={{ color: 'gray' }} />
@@ -487,7 +489,7 @@ export const EditMongoDbSpecificDataComponent = ({
           </div>
 
           <div className="mb-1 flex w-full items-center">
-            <div className="min-w-[150px]">Auth database</div>
+            <div className="min-w-[150px]">{t('databases.authDatabase')}</div>
             <Input
               value={editingDatabase.mongodb?.authDatabase}
               onChange={(e) => {
@@ -506,7 +508,7 @@ export const EditMongoDbSpecificDataComponent = ({
           </div>
 
           <div className="mb-1 flex w-full items-center">
-            <div className="min-w-[150px]">Exclude collections</div>
+            <div className="min-w-[150px]">{t('databases.excludeCollections')}</div>
             <Select
               mode="tags"
               value={editingDatabase.mongodb?.excludeCollections || []}
@@ -523,13 +525,13 @@ export const EditMongoDbSpecificDataComponent = ({
               }}
               size="small"
               className="max-w-[200px] grow"
-              placeholder="No collections excluded"
+              placeholder={t('databases.noCollectionsExcluded')}
               tokenSeparators={NAME_LIST_TOKEN_SEPARATORS}
             />
 
             <Tooltip
               className="cursor-pointer"
-              title="Collection names to exclude from the backup. You can paste a list separated by commas or new lines."
+              title={t('databases.excludeCollectionsTooltip')}
             >
               <InfoCircleOutlined className="ml-2" style={{ color: 'gray' }} />
             </Tooltip>
@@ -540,13 +542,13 @@ export const EditMongoDbSpecificDataComponent = ({
       <div className="mt-5 flex">
         {isShowCancelButton && (
           <Button className="mr-1" danger ghost onClick={() => onCancel()}>
-            Cancel
+            {t('common.cancel')}
           </Button>
         )}
 
         {isShowBackButton && (
           <Button className="mr-auto" type="primary" ghost onClick={() => onBack()}>
-            Back
+            {t('common.back')}
           </Button>
         )}
 
@@ -558,7 +560,7 @@ export const EditMongoDbSpecificDataComponent = ({
             disabled={!isAllFieldsFilled}
             className="mr-5"
           >
-            Test connection
+            {t('common.testConnection')}
           </Button>
         )}
 
@@ -570,15 +572,14 @@ export const EditMongoDbSpecificDataComponent = ({
             disabled={!isAllFieldsFilled}
             className="mr-5"
           >
-            {saveButtonText || 'Save'}
+            {saveButtonText || t('common.save')}
           </Button>
         )}
       </div>
 
       {isConnectionFailed && (
         <div className="mt-3 text-sm text-gray-500 dark:text-gray-400">
-          If your database uses IP whitelist, make sure Databasus server IP is added to the allowed
-          list.
+          {t('databases.ipWhitelistHint')}
         </div>
       )}
 

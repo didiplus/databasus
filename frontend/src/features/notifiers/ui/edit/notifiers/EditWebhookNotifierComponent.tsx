@@ -5,6 +5,7 @@ import { useMemo } from 'react';
 import type { Notifier, WebhookHeader } from '../../../../../entity/notifiers';
 import { NotificationType } from '../../../../../entity/notifiers';
 import { WebhookMethod } from '../../../../../entity/notifiers/models/webhook/WebhookMethod';
+import { useTranslation } from '../../../../../shared/i18n';
 import {
   DEFAULT_ACCEPT_NOTIFICATION_TYPES,
   NOTIFICATION_TYPE_OPTIONS,
@@ -34,13 +35,15 @@ function validateJsonTemplate(template: string): string | null {
     return null;
   } catch (e) {
     if (e instanceof SyntaxError) {
-      return 'Invalid JSON format';
+      return 'notifiers.invalidJsonFormat';
     }
-    return 'Invalid JSON';
+    return 'notifiers.invalidJson';
   }
 }
 
 export function EditWebhookNotifierComponent({ notifier, setNotifier, setUnsaved }: Props) {
+  const { t } = useTranslation();
+
   const headers = notifier?.webhookNotifier?.headers || [];
   const bodyTemplate = notifier?.webhookNotifier?.bodyTemplate || '';
 
@@ -94,7 +97,7 @@ export function EditWebhookNotifierComponent({ notifier, setNotifier, setUnsaved
   return (
     <>
       <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-        <div className="mb-1 min-w-[150px] sm:mb-0">Webhook URL</div>
+        <div className="mb-1 min-w-[150px] sm:mb-0">{t('notifiers.webhookUrl')}</div>
         <Input
           value={notifier?.webhookNotifier?.webhookUrl || ''}
           onChange={(e) => {
@@ -107,7 +110,7 @@ export function EditWebhookNotifierComponent({ notifier, setNotifier, setUnsaved
       </div>
 
       <div className="mt-1 mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-        <div className="mb-1 min-w-[150px] sm:mb-0">Method</div>
+        <div className="mb-1 min-w-[150px] sm:mb-0">{t('notifiers.method')}</div>
         <div className="flex items-center">
           <Select
             value={notifier?.webhookNotifier?.webhookMethod || WebhookMethod.POST}
@@ -125,7 +128,7 @@ export function EditWebhookNotifierComponent({ notifier, setNotifier, setUnsaved
       </div>
 
       <div className="mt-1 mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-        <div className="mb-1 min-w-[150px] sm:mb-0">Send on</div>
+        <div className="mb-1 min-w-[150px] sm:mb-0">{t('notifiers.sendOn')}</div>
         <Select
           mode="multiple"
           value={acceptNotificationTypes}
@@ -133,15 +136,15 @@ export function EditWebhookNotifierComponent({ notifier, setNotifier, setUnsaved
           size="small"
           className="w-full max-w-[250px]"
           options={NOTIFICATION_TYPE_OPTIONS}
-          placeholder="Select notification types"
+          placeholder={t('notifiers.selectNotificationTypes')}
         />
       </div>
 
       <div className="mt-3 mb-1 flex w-full flex-col items-start">
         <div className="mb-1 flex items-center">
           <span className="min-w-[150px]">
-            Custom headers{' '}
-            <Tooltip title="Add custom HTTP headers to the webhook request (e.g., Authorization, X-API-Key)">
+            {t('notifiers.customHeaders')}{' '}
+            <Tooltip title={t('notifiers.customHeadersTooltip')}>
               <InfoCircleOutlined className="ml-1" style={{ color: 'gray' }} />
             </Tooltip>
           </span>
@@ -149,7 +152,7 @@ export function EditWebhookNotifierComponent({ notifier, setNotifier, setUnsaved
 
         {notifier.id && (
           <div className="mb-1 text-xs text-orange-700">
-            *Saved headers hidden for security reasons
+            {t('notifiers.savedHeadersHidden')}
           </div>
         )}
 
@@ -161,14 +164,14 @@ export function EditWebhookNotifierComponent({ notifier, setNotifier, setUnsaved
                 onChange={(e) => updateHeader(index, 'key', e.target.value)}
                 size="small"
                 style={{ width: 150, flexShrink: 0 }}
-                placeholder="Header name"
+                placeholder={t('notifiers.headerName')}
               />
               <Input
                 value={header.value}
                 onChange={(e) => updateHeader(index, 'value', e.target.value)}
                 size="small"
                 style={{ flex: 1, minWidth: 0 }}
-                placeholder="Header value"
+                placeholder={t('notifiers.headerValue')}
               />
               <Button
                 type="text"
@@ -187,7 +190,7 @@ export function EditWebhookNotifierComponent({ notifier, setNotifier, setUnsaved
             onClick={addHeader}
             className="mt-1"
           >
-            Add header
+            {t('notifiers.addHeader')}
           </Button>
         </div>
       </div>
@@ -195,7 +198,7 @@ export function EditWebhookNotifierComponent({ notifier, setNotifier, setUnsaved
       {notifier?.webhookNotifier?.webhookMethod === WebhookMethod.POST && (
         <div className="mt-3 mb-1 flex w-full flex-col items-start">
           <div className="mb-1 flex items-center">
-            <span className="min-w-[150px]">Body template </span>
+            <span className="min-w-[150px]">{t('notifiers.bodyTemplate')} </span>
           </div>
 
           <div className="mb-2 text-xs text-gray-500 dark:text-gray-400">
@@ -203,13 +206,13 @@ export function EditWebhookNotifierComponent({ notifier, setNotifier, setUnsaved
               <code className="rounded bg-gray-100 px-1.5 py-0.5 dark:bg-gray-700">
                 {'{{heading}}'}
               </code>{' '}
-              — notification title
+              {t('notifiers.bodyTemplateHeading')}
             </span>
             <span>
               <code className="rounded bg-gray-100 px-1.5 py-0.5 dark:bg-gray-700">
                 {'{{message}}'}
               </code>{' '}
-              — notification message
+              {t('notifiers.bodyTemplateMessage')}
             </span>
           </div>
 
@@ -223,13 +226,13 @@ export function EditWebhookNotifierComponent({ notifier, setNotifier, setUnsaved
             placeholder={DEFAULT_BODY_TEMPLATE}
             status={jsonError ? 'error' : undefined}
           />
-          {jsonError && <div className="mt-1 text-xs text-red-500">{jsonError}</div>}
+          {jsonError && <div className="mt-1 text-xs text-red-500">{t(jsonError)}</div>}
         </div>
       )}
 
       {notifier?.webhookNotifier?.webhookUrl && (
         <div className="mt-4">
-          <div className="mb-1 font-medium">Example request</div>
+          <div className="mb-1 font-medium">{t('notifiers.exampleRequest')}</div>
 
           {notifier?.webhookNotifier?.webhookMethod === WebhookMethod.GET && (
             <div className="rounded bg-gray-100 p-2 px-3 text-sm break-all dark:bg-gray-800">
@@ -243,14 +246,14 @@ export function EditWebhookNotifierComponent({ notifier, setNotifier, setUnsaved
               {headers.length > 0 && (
                 <div className="mt-2 border-t border-gray-200 pt-2 dark:border-gray-600">
                   <div className="text-xs font-semibold text-gray-500 dark:text-gray-400">
-                    Headers:
+                    {t('notifiers.headersLabel')}
                   </div>
 
                   {headers
                     .filter((h) => h.key)
                     .map((h, i) => (
                       <div key={i} className="text-xs">
-                        {h.key}: {h.value || '(hidden)'}
+                        {h.key}: {h.value || t('notifiers.hiddenValue')}
                       </div>
                     ))}
                 </div>

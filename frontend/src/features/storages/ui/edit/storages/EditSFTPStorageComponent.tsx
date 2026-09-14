@@ -3,6 +3,7 @@ import { Checkbox, Input, InputNumber, Radio, Tooltip } from 'antd';
 import { useState } from 'react';
 
 import type { Storage } from '../../../../../entity/storages';
+import { useTranslation } from '../../../../../shared/i18n';
 
 interface Props {
   storage: Storage;
@@ -11,6 +12,8 @@ interface Props {
 }
 
 export function EditSFTPStorageComponent({ storage, setStorage, setUnsaved }: Props) {
+  const { t } = useTranslation();
+
   const hasAdvancedValues = !!storage?.sftpStorage?.skipHostKeyVerify;
   const [showAdvanced, setShowAdvanced] = useState(hasAdvancedValues);
 
@@ -20,7 +23,7 @@ export function EditSFTPStorageComponent({ storage, setStorage, setUnsaved }: Pr
   return (
     <>
       <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-        <div className="mb-1 min-w-[110px] sm:mb-0">Host</div>
+        <div className="mb-1 min-w-[110px] sm:mb-0">{t('storages.host')}</div>
         <Input
           value={storage?.sftpStorage?.host || ''}
           onChange={(e) => {
@@ -42,7 +45,7 @@ export function EditSFTPStorageComponent({ storage, setStorage, setUnsaved }: Pr
       </div>
 
       <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-        <div className="mb-1 min-w-[110px] sm:mb-0">Port</div>
+        <div className="mb-1 min-w-[110px] sm:mb-0">{t('storages.port')}</div>
         <InputNumber
           value={storage?.sftpStorage?.port}
           onChange={(value) => {
@@ -66,7 +69,7 @@ export function EditSFTPStorageComponent({ storage, setStorage, setUnsaved }: Pr
       </div>
 
       <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-        <div className="mb-1 min-w-[110px] sm:mb-0">Username</div>
+        <div className="mb-1 min-w-[110px] sm:mb-0">{t('storages.username')}</div>
         <Input
           value={storage?.sftpStorage?.username || ''}
           onChange={(e) => {
@@ -88,7 +91,7 @@ export function EditSFTPStorageComponent({ storage, setStorage, setUnsaved }: Pr
       </div>
 
       <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-        <div className="mb-1 min-w-[110px] sm:mb-0">Auth Method</div>
+        <div className="mb-1 min-w-[110px] sm:mb-0">{t('storages.authMethod')}</div>
         <Radio.Group
           value={authMethod}
           onChange={(e) => {
@@ -118,14 +121,14 @@ export function EditSFTPStorageComponent({ storage, setStorage, setUnsaved }: Pr
           }}
           size="small"
         >
-          <Radio value="password">Password</Radio>
-          <Radio value="privateKey">Private Key</Radio>
+          <Radio value="password">{t('storages.password')}</Radio>
+          <Radio value="privateKey">{t('storages.privateKey')}</Radio>
         </Radio.Group>
       </div>
 
       {authMethod === 'password' && (
         <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-          <div className="mb-1 min-w-[110px] sm:mb-0">Password</div>
+          <div className="mb-1 min-w-[110px] sm:mb-0">{t('storages.password')}</div>
           <Input.Password
             value={storage?.sftpStorage?.password || ''}
             onChange={(e) => {
@@ -153,7 +156,7 @@ export function EditSFTPStorageComponent({ storage, setStorage, setUnsaved }: Pr
 
       {authMethod === 'privateKey' && (
         <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-          <div className="mb-1 min-w-[110px] sm:mb-0">Private Key</div>
+          <div className="mb-1 min-w-[110px] sm:mb-0">{t('storages.privateKey')}</div>
           <div className="flex w-full max-w-[250px] flex-col">
             <Input.TextArea
               value={storage?.sftpStorage?.privateKey || ''}
@@ -176,7 +179,7 @@ export function EditSFTPStorageComponent({ storage, setStorage, setUnsaved }: Pr
             />
             <Tooltip
               className="mt-1 cursor-pointer"
-              title="Paste your SSH private key (PEM format). Supports RSA, DSA, ECDSA, and Ed25519 keys."
+              title={t('storages.privateKeyTooltip')}
             >
               <InfoCircleOutlined style={{ color: 'gray' }} />
             </Tooltip>
@@ -185,7 +188,7 @@ export function EditSFTPStorageComponent({ storage, setStorage, setUnsaved }: Pr
       )}
 
       <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-        <div className="mb-1 min-w-[110px] sm:mb-0">Path</div>
+        <div className="mb-1 min-w-[110px] sm:mb-0">{t('storages.path')}</div>
         <div className="flex items-center">
           <Input
             value={storage?.sftpStorage?.path || ''}
@@ -213,7 +216,7 @@ export function EditSFTPStorageComponent({ storage, setStorage, setUnsaved }: Pr
 
           <Tooltip
             className="cursor-pointer"
-            title="Remote directory path for storing backups (optional)"
+            title={t('storages.remotePathTooltip')}
           >
             <InfoCircleOutlined className="ml-2" style={{ color: 'gray' }} />
           </Tooltip>
@@ -225,7 +228,7 @@ export function EditSFTPStorageComponent({ storage, setStorage, setUnsaved }: Pr
           className="flex cursor-pointer items-center text-sm text-blue-600 hover:text-blue-800"
           onClick={() => setShowAdvanced(!showAdvanced)}
         >
-          <span className="mr-2">Advanced settings</span>
+          <span className="mr-2">{t('storages.advancedSettings')}</span>
 
           {showAdvanced ? (
             <UpOutlined style={{ fontSize: '12px' }} />
@@ -238,7 +241,7 @@ export function EditSFTPStorageComponent({ storage, setStorage, setUnsaved }: Pr
       {showAdvanced && (
         <>
           <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-            <div className="mb-1 min-w-[110px] sm:mb-0">Skip host key</div>
+            <div className="mb-1 min-w-[110px] sm:mb-0">{t('storages.skipHostKey')}</div>
             <div className="flex items-center">
               <Checkbox
                 checked={storage?.sftpStorage?.skipHostKeyVerify || false}
@@ -255,13 +258,14 @@ export function EditSFTPStorageComponent({ storage, setStorage, setUnsaved }: Pr
                   setUnsaved();
                 }}
               >
-                Skip host key verification
+                {t('storages.skipHostKeyVerification')}
               </Checkbox>
 
               <Tooltip
                 className="cursor-pointer"
-                title="Skip SSH host key verification. Enable this if you trust the server. Warning: this reduces security."
+                title={t('storages.skipHostKeyTooltip')}
               >
+
                 <InfoCircleOutlined className="ml-2" style={{ color: 'gray' }} />
               </Tooltip>
             </div>

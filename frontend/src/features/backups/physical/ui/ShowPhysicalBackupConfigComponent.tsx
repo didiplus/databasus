@@ -15,6 +15,7 @@ import {
 import { BackupEncryption } from '../../../../entity/backups/shared';
 import type { Database } from '../../../../entity/databases';
 import { type Interval, IntervalType } from '../../../../entity/intervals';
+import { useTranslation } from '../../../../shared/i18n';
 import { getStorageLogoFromType } from '../../../../entity/storages';
 import { getUserTimeFormat } from '../../../../shared/time';
 import {
@@ -27,50 +28,9 @@ interface Props {
   database: Database;
 }
 
-const weekdayLabels: Record<number, string> = {
-  1: 'Mon',
-  2: 'Tue',
-  3: 'Wed',
-  4: 'Thu',
-  5: 'Fri',
-  6: 'Sat',
-  7: 'Sun',
-};
-
-const intervalLabels: Record<IntervalType, string> = {
-  [IntervalType.HOURLY]: 'Hourly',
-  [IntervalType.DAILY]: 'Daily',
-  [IntervalType.WEEKLY]: 'Weekly',
-  [IntervalType.MONTHLY]: 'Monthly',
-  [IntervalType.CRON]: 'Cron',
-};
-
-const notificationLabels: Record<PhysicalBackupNotificationType, string> = {
-  [PhysicalBackupNotificationType.BACKUP_SUCCESS]: 'Backup success',
-  [PhysicalBackupNotificationType.BACKUP_FAILED]: 'Backup failed',
-  [PhysicalBackupNotificationType.CHAIN_BROKEN]: 'Chain broken',
-  [PhysicalBackupNotificationType.WAL_GAP]: 'WAL gap',
-};
-
-const retentionLabels: Record<PhysicalRetention, string> = {
-  [PhysicalRetention.CHAINS]: 'Chains',
-  [PhysicalRetention.FULL_BACKUPS]: 'Full backups',
-  [PhysicalRetention.CHAINS_AND_FULL_BACKUPS]: 'Chains and full backups',
-};
-
-const formatGfsRetention = (retention: FullBackupsRetention): string => {
-  const parts: string[] = [];
-
-  if (retention.gfsHours > 0) parts.push(`${retention.gfsHours} hourly`);
-  if (retention.gfsDays > 0) parts.push(`${retention.gfsDays} daily`);
-  if (retention.gfsWeeks > 0) parts.push(`${retention.gfsWeeks} weekly`);
-  if (retention.gfsMonths > 0) parts.push(`${retention.gfsMonths} monthly`);
-  if (retention.gfsYears > 0) parts.push(`${retention.gfsYears} yearly`);
-
-  return parts.length > 0 ? parts.join(', ') : 'Not configured';
-};
-
 export const ShowPhysicalBackupConfigComponent = ({ database }: Props): JSX.Element => {
+  const { t } = useTranslation();
+
   const [backupConfig, setBackupConfig] = useState<PhysicalBackupConfig>();
 
   const timeFormat = useMemo(() => {
@@ -80,8 +40,49 @@ export const ShowPhysicalBackupConfigComponent = ({ database }: Props): JSX.Elem
 
   const dateTimeFormat = useMemo(() => getUserTimeFormat(), []);
 
-  // Read-only mirror of an interval: type, plus local time / weekday / day-of-month
-  // converted from UTC, or the next cron run.
+  const weekdayLabels: Record<number, string> = {
+    1: t('common.weekdayMon'),
+    2: t('common.weekdayTue'),
+    3: t('common.weekdayWed'),
+    4: t('common.weekdayThu'),
+    5: t('common.weekdayFri'),
+    6: t('common.weekdaySat'),
+    7: t('common.weekdaySun'),
+  };
+
+  const intervalLabels: Record<IntervalType, string> = {
+    [IntervalType.HOURLY]: t('common.hourly'),
+    [IntervalType.DAILY]: t('common.daily'),
+    [IntervalType.WEEKLY]: t('common.weekly'),
+    [IntervalType.MONTHLY]: t('common.monthly'),
+    [IntervalType.CRON]: t('common.cron'),
+  };
+
+  const notificationLabels: Record<PhysicalBackupNotificationType, string> = {
+    [PhysicalBackupNotificationType.BACKUP_SUCCESS]: t('backups.backupSuccess'),
+    [PhysicalBackupNotificationType.BACKUP_FAILED]: t('backups.backupFailed'),
+    [PhysicalBackupNotificationType.CHAIN_BROKEN]: t('backups.chainBroken'),
+    [PhysicalBackupNotificationType.WAL_GAP]: t('backups.walGap'),
+  };
+
+  const retentionLabels: Record<PhysicalRetention, string> = {
+    [PhysicalRetention.CHAINS]: t('backups.chains'),
+    [PhysicalRetention.FULL_BACKUPS]: t('backups.fullBackups'),
+    [PhysicalRetention.CHAINS_AND_FULL_BACKUPS]: t('backups.retentionChainsAndFullBackups'),
+  };
+
+  const formatGfsRetention = (retention: FullBackupsRetention): string => {
+    const parts: string[] = [];
+
+    if (retention.gfsHours > 0) parts.push(`${retention.gfsHours} hourly`);
+    if (retention.gfsDays > 0) parts.push(`${retention.gfsDays} daily`);
+    if (retention.gfsWeeks > 0) parts.push(`${retention.gfsWeeks} weekly`);
+    if (retention.gfsMonths > 0) parts.push(`${retention.gfsMonths} monthly`);
+    if (retention.gfsYears > 0) parts.push(`${retention.gfsYears} yearly`);
+
+    return parts.length > 0 ? parts.join(', ') : t('backups.notConfigured');
+  };
+
   const renderInterval = (label: string, interval?: Interval): JSX.Element | null => {
     if (!interval?.type) return null;
 
@@ -109,7 +110,7 @@ export const ShowPhysicalBackupConfigComponent = ({ database }: Props): JSX.Elem
           <div className="mb-1 flex w-full items-center text-xs text-gray-600 dark:text-gray-400">
             <div className="min-w-[180px]" />
             <div>
-              Next run {dayjs(nextRun).local().format(dateTimeFormat.format)}
+              {t('backups.nextRun')} {dayjs(nextRun).local().format(dateTimeFormat.format)}
               <br />({dayjs(nextRun).fromNow()})
             </div>
           </div>
@@ -128,14 +129,14 @@ export const ShowPhysicalBackupConfigComponent = ({ database }: Props): JSX.Elem
 
         {interval.type === IntervalType.WEEKLY && (
           <div className="mb-1 flex w-full items-center">
-            <div className="min-w-[180px]">Weekday</div>
+            <div className="min-w-[180px]">{t('backups.weekday')}</div>
             <div>{displayedWeekday ? weekdayLabels[displayedWeekday] : ''}</div>
           </div>
         )}
 
         {interval.type === IntervalType.MONTHLY && (
           <div className="mb-1 flex w-full items-center">
-            <div className="min-w-[180px]">Day of month</div>
+            <div className="min-w-[180px]">{t('backups.dayOfMonth')}</div>
             <div>{displayedDayOfMonth || ''}</div>
           </div>
         )}
@@ -143,7 +144,7 @@ export const ShowPhysicalBackupConfigComponent = ({ database }: Props): JSX.Elem
         {interval.type === IntervalType.CRON && (
           <>
             <div className="mb-1 flex w-full items-center">
-              <div className="min-w-[180px]">Cron expression (UTC)</div>
+              <div className="min-w-[180px]">{t('backups.cronExpressionUtc')}</div>
               <code className="rounded bg-gray-100 px-2 py-0.5 text-sm dark:bg-gray-700">
                 {interval.cronExpression || ''}
               </code>
@@ -154,7 +155,7 @@ export const ShowPhysicalBackupConfigComponent = ({ database }: Props): JSX.Elem
 
         {interval.type !== IntervalType.HOURLY && interval.type !== IntervalType.CRON && (
           <div className="mb-1 flex w-full items-center">
-            <div className="min-w-[180px]">Time of day</div>
+            <div className="min-w-[180px]">{t('backups.timeOfDay')}</div>
             <div>{formattedTime}</div>
           </div>
         )}
@@ -185,39 +186,44 @@ export const ShowPhysicalBackupConfigComponent = ({ database }: Props): JSX.Elem
   return (
     <div>
       <div className="mb-1 flex w-full items-center">
-        <div className="min-w-[180px]">Backups enabled</div>
+        <div className="min-w-[180px]">{t('backups.backupsEnabled')}</div>
         <div className={backupConfig.isBackupsEnabled ? '' : 'font-bold text-red-600'}>
-          {backupConfig.isBackupsEnabled ? 'Yes' : 'No'}
+          {backupConfig.isBackupsEnabled ? t('common.yes') : t('common.no')}
         </div>
       </div>
 
       {backupConfig.isBackupsEnabled && (
         <>
-          {renderInterval('Full backup cadence', backupConfig.fullBackupInterval)}
-          {renderInterval('Incremental backup cadence', backupConfig.incrementalBackupInterval)}
+          {renderInterval(t('backups.fullBackupCadence'), backupConfig.fullBackupInterval)}
+          {renderInterval(
+            t('backups.incrementalBackupCadence'),
+            backupConfig.incrementalBackupInterval,
+          )}
 
           <div className="mt-4 mb-1 flex w-full items-center">
-            <div className="min-w-[180px]">Retention</div>
+            <div className="min-w-[180px]">{t('backups.retention')}</div>
             <div>{retentionLabels[backupConfig.retention] ?? '-'}</div>
           </div>
 
           {isShowChainsCount && (
             <div className="mb-1 flex w-full items-center">
-              <div className="min-w-[180px]">Chains kept</div>
+              <div className="min-w-[180px]">{t('backups.chainsKept')}</div>
               <div>{backupConfig.chainsRetention?.count ?? '-'}</div>
             </div>
           )}
 
           {isShowFullBackups && (
             <div className="mb-1 flex w-full items-center">
-              <div className="min-w-[180px]">Full backups kept</div>
+              <div className="min-w-[180px]">{t('backups.fullBackupsKept')}</div>
               <div className="flex items-center gap-1">
                 {fullBackupsRetention.policy === PhysicalFullBackupsPolicy.LAST_N ? (
-                  <span>Last {fullBackupsRetention.count} full backups</span>
+                  <span>
+                    {t('backups.lastNFullBackups', { count: fullBackupsRetention.count ?? 0 })}
+                  </span>
                 ) : (
                   <span className="flex items-center gap-1">
                     {formatGfsRetention(fullBackupsRetention)}
-                    <Tooltip title="Grandfather-Father-Son rotation: keep the last N hourly, daily, weekly, monthly and yearly full backups.">
+                    <Tooltip title={t('backups.gfsFullTooltip')}>
                       <InfoCircleOutlined style={{ color: 'gray' }} />
                     </Tooltip>
                   </span>
@@ -227,7 +233,7 @@ export const ShowPhysicalBackupConfigComponent = ({ database }: Props): JSX.Elem
           )}
 
           <div className="mb-1 flex w-full items-center">
-            <div className="min-w-[180px]">Storage</div>
+            <div className="min-w-[180px]">{t('backups.storage')}</div>
             <div className="flex items-center">
               <div>{backupConfig.storage?.name || '-'}</div>
               {backupConfig.storage?.type && (
@@ -241,18 +247,22 @@ export const ShowPhysicalBackupConfigComponent = ({ database }: Props): JSX.Elem
           </div>
 
           <div className="mb-1 flex w-full items-center">
-            <div className="min-w-[180px]">Encryption</div>
-            <div>{backupConfig.encryption === BackupEncryption.ENCRYPTED ? 'Enabled' : 'None'}</div>
+            <div className="min-w-[180px]">{t('backups.encryption')}</div>
+            <div>
+              {backupConfig.encryption === BackupEncryption.ENCRYPTED
+                ? t('backups.enabled')
+                : t('common.none')}
+            </div>
           </div>
 
           <div className="mb-1 flex w-full items-center">
-            <div className="min-w-[180px]">Notifications</div>
+            <div className="min-w-[180px]">{t('backups.notifications')}</div>
             <div>
               {backupConfig.sendNotificationsOn.length > 0
                 ? backupConfig.sendNotificationsOn
                     .map((type) => notificationLabels[type])
                     .join(', ')
-                : 'None'}
+                : t('common.none')}
             </div>
           </div>
         </>

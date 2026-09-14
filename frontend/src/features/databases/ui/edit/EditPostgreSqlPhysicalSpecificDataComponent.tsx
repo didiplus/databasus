@@ -17,6 +17,7 @@ import {
 import { ConnectionStringParser } from '../../../../entity/databases/model/postgresql/ConnectionStringParser';
 import { ApiError } from '../../../../shared/api';
 import { ClipboardHelper } from '../../../../shared/lib/ClipboardHelper';
+import { useTranslation } from '../../../../shared/i18n';
 import { ToastHelper } from '../../../../shared/toast';
 import { ClipboardPasteModalComponent } from '../../../../shared/ui';
 import { AdvancedSettingsToggleComponent } from './AdvancedSettingsToggleComponent';
@@ -88,6 +89,7 @@ export const EditPostgreSqlPhysicalSpecificDataComponent = ({
   onSaved,
   onConnectionErrorChange,
 }: Props) => {
+  const { t } = useTranslation();
   const { message } = App.useApp();
 
   const [editingDatabase, setEditingDatabase] = useState<Database>();
@@ -115,9 +117,9 @@ export const EditPostgreSqlPhysicalSpecificDataComponent = ({
   const copyCommand = async (command: string) => {
     try {
       await ClipboardHelper.copyToClipboard(command);
-      message.success('Copied to clipboard');
+      message.success(t('common.copiedToClipboard'));
     } catch {
-      message.error('Failed to copy');
+      message.error(t('common.failedToCopy'));
     }
   };
 
@@ -125,7 +127,7 @@ export const EditPostgreSqlPhysicalSpecificDataComponent = ({
     const trimmedText = text.trim();
 
     if (!trimmedText) {
-      message.error('Clipboard is empty');
+      message.error(t('clipboard.clipboardEmpty'));
       return;
     }
 
@@ -153,7 +155,7 @@ export const EditPostgreSqlPhysicalSpecificDataComponent = ({
     setHasUserChosenSslMode(true);
     setEditingDatabase(updatedDatabase);
     invalidateConnectionTest();
-    message.success('Connection string parsed successfully');
+    message.success(t('databases.connectionStringParsed'));
   };
 
   const parseFromClipboard = async () => {
@@ -166,7 +168,7 @@ export const EditPostgreSqlPhysicalSpecificDataComponent = ({
       const text = await ClipboardHelper.readFromClipboard();
       applyConnectionString(text);
     } catch {
-      message.error('Failed to read clipboard. Please check browser permissions.');
+      message.error(t('clipboard.failedReadClipboard'));
     }
   };
 
@@ -197,8 +199,8 @@ export const EditPostgreSqlPhysicalSpecificDataComponent = ({
       await databaseApi.testDatabaseConnectionDirect(trimmedDatabase);
       setIsConnectionTested(true);
       ToastHelper.showToast({
-        title: 'Connection test passed',
-        description: 'You can continue with the next step',
+        title: t('databases.connectionTestPassed'),
+        description: t('databases.canContinueNextStep'),
       });
     } catch (e) {
       if (e instanceof ApiError && e.code && e.code in physicalConnectionErrorContent) {
@@ -284,21 +286,19 @@ export const EditPostgreSqlPhysicalSpecificDataComponent = ({
 
   const backupTypeOptions = [
     {
-      label: 'Full backups only',
+      label: t('databases.fullBackupsOnly'),
       value: PhysicalDatabaseBackupType.FULL,
-      tooltip: 'Periodic standalone full backups. Each backup is self-contained.',
+      tooltip: t('databases.fullBackupsOnlyTooltip'),
     },
     {
-      label: 'Full + incremental',
+      label: t('databases.fullIncremental'),
       value: PhysicalDatabaseBackupType.FULL_INCREMENTAL,
-      tooltip:
-        'Full backups plus incremental ones that store only the changes since the previous backup. Smaller and faster.',
+      tooltip: t('databases.fullIncrementalTooltip'),
     },
     {
-      label: 'Full + incremental + WAL',
+      label: t('databases.fullIncrementalWal'),
       value: PhysicalDatabaseBackupType.FULL_INCREMENTAL_WAL_STREAM,
-      tooltip:
-        'Adds continuous WAL streaming on top of full and incremental backups. Only this option enables point-in-time recovery (PITR), but it requires more space and slower in restore.',
+      tooltip: t('databases.fullIncrementalWalTooltip'),
     },
   ];
 
@@ -306,13 +306,13 @@ export const EditPostgreSqlPhysicalSpecificDataComponent = ({
     <div className="mt-5 flex">
       {isShowCancelButton && (
         <Button className="mr-1" danger ghost onClick={() => onCancel()}>
-          Cancel
+          {t('common.cancel')}
         </Button>
       )}
 
       {isShowBackButton && (
         <Button className="mr-auto" type="primary" ghost onClick={() => onBack()}>
-          Back
+          {t('common.back')}
         </Button>
       )}
 
@@ -328,11 +328,11 @@ export const EditPostgreSqlPhysicalSpecificDataComponent = ({
     if (hadSslCert && !isReplacingCerts) {
       return (
         <div className="mb-1 flex w-full items-center">
-          <div className="min-w-[150px]">Client certificate</div>
+          <div className="min-w-[150px]">{t('databases.clientCertificate')}</div>
           <div className="flex items-center">
             <span className="mr-3">*************</span>
             <Button size="small" onClick={startReplacingCerts}>
-              Replace
+              {t('common.replace')}
             </Button>
           </div>
         </div>
@@ -342,7 +342,7 @@ export const EditPostgreSqlPhysicalSpecificDataComponent = ({
     return (
       <>
         <div className="mb-1 flex w-full items-start">
-          <div className="min-w-[150px]">Client certificate</div>
+          <div className="min-w-[150px]">{t('databases.clientCertificate')}</div>
           <Input.TextArea
             value={editingDatabase.postgresqlPhysical?.sslClientCert || ''}
             onChange={(e) => updatePostgresqlCert('sslClientCert', e.target.value)}
@@ -354,7 +354,7 @@ export const EditPostgreSqlPhysicalSpecificDataComponent = ({
         </div>
 
         <div className="mb-1 flex w-full items-start">
-          <div className="min-w-[150px]">Client key</div>
+          <div className="min-w-[150px]">{t('databases.clientKey')}</div>
           <Input.TextArea
             value={editingDatabase.postgresqlPhysical?.sslClientKey || ''}
             onChange={(e) => updatePostgresqlCert('sslClientKey', e.target.value)}
@@ -367,10 +367,10 @@ export const EditPostgreSqlPhysicalSpecificDataComponent = ({
 
         <div className="mb-1 flex w-full items-start">
           <div className="flex min-w-[150px] items-center">
-            <span>Server CA certificate</span>
+            <span>{t('databases.serverCaCertificate')}</span>
             <Tooltip
               className="cursor-pointer"
-              title="Optional. When provided, the server certificate is verified against this CA (verify-ca / verify-full)."
+              title={t('databases.serverCaTooltip')}
             >
               <InfoCircleOutlined className="ml-2" style={{ color: 'gray' }} />
             </Tooltip>
@@ -393,7 +393,7 @@ export const EditPostgreSqlPhysicalSpecificDataComponent = ({
       <pre className="rounded-md bg-gray-900 p-3 pr-10 font-mono text-xs break-all whitespace-pre-wrap text-gray-100">
         {command}
       </pre>
-      <Tooltip title="Copy">
+      <Tooltip title={t('common.copy')}>
         <button
           type="button"
           className="absolute top-2 right-2 cursor-pointer rounded p-1 text-gray-400 hover:text-white"
@@ -462,7 +462,7 @@ export const EditPostgreSqlPhysicalSpecificDataComponent = ({
     return (
       <>
         <div className="mb-3 flex w-full items-start">
-          <div className="min-w-[150px]">Backup type</div>
+          <div className="min-w-[150px]">{t('databases.backupType')}</div>
           <Radio.Group
             value={
               editingDatabase.postgresqlPhysical?.backupType ?? PhysicalDatabaseBackupType.FULL
@@ -489,12 +489,12 @@ export const EditPostgreSqlPhysicalSpecificDataComponent = ({
             onClick={parseFromClipboard}
           >
             <CopyOutlined className="mr-1" />
-            Parse from clipboard
+            {t('databases.parseFromClipboard')}
           </div>
         </div>
 
         <div className="mb-1 flex w-full items-center">
-          <div className="min-w-[150px]">Host</div>
+          <div className="min-w-[150px]">{t('databases.host')}</div>
           <Input
             value={editingDatabase.postgresqlPhysical?.host}
             onChange={(e) => {
@@ -533,7 +533,7 @@ export const EditPostgreSqlPhysicalSpecificDataComponent = ({
         </div>
 
         <div className="mb-1 flex w-full items-center">
-          <div className="min-w-[150px]">Port</div>
+          <div className="min-w-[150px]">{t('databases.port')}</div>
           <InputNumber
             type="number"
             value={editingDatabase.postgresqlPhysical?.port}
@@ -553,7 +553,7 @@ export const EditPostgreSqlPhysicalSpecificDataComponent = ({
         </div>
 
         <div className="mb-1 flex w-full items-center">
-          <div className="min-w-[150px]">Username</div>
+          <div className="min-w-[150px]">{t('databases.username')}</div>
           <Input
             value={editingDatabase.postgresqlPhysical?.username}
             onChange={(e) => {
@@ -575,7 +575,7 @@ export const EditPostgreSqlPhysicalSpecificDataComponent = ({
         </div>
 
         <div className="mb-1 flex w-full items-center">
-          <div className="min-w-[150px]">Password</div>
+          <div className="min-w-[150px]">{t('common.password')}</div>
           <Input.Password
             value={editingDatabase.postgresqlPhysical?.password}
             onChange={(e) => {
@@ -601,7 +601,7 @@ export const EditPostgreSqlPhysicalSpecificDataComponent = ({
         </div>
 
         <div className="mb-1 flex w-full items-center">
-          <div className="min-w-[150px]">SSL mode</div>
+          <div className="min-w-[150px]">{t('databases.sslMode')}</div>
           <Select
             value={editingDatabase.postgresqlPhysical?.sslMode ?? PostgresSslMode.Disable}
             onChange={(value: PostgresSslMode) => {
@@ -615,10 +615,10 @@ export const EditPostgreSqlPhysicalSpecificDataComponent = ({
               invalidateConnectionTest();
             }}
             options={[
-              { label: 'Disable', value: PostgresSslMode.Disable },
-              { label: 'Require', value: PostgresSslMode.Require },
-              { label: 'Verify CA', value: PostgresSslMode.VerifyCa },
-              { label: 'Verify full', value: PostgresSslMode.VerifyFull },
+              { label: t('databases.sslDisable'), value: PostgresSslMode.Disable },
+              { label: t('databases.sslRequire'), value: PostgresSslMode.Require },
+              { label: t('databases.sslVerifyCa'), value: PostgresSslMode.VerifyCa },
+              { label: t('databases.sslVerifyFull'), value: PostgresSslMode.VerifyFull },
             ]}
             size="small"
             className="max-w-[200px] grow"
@@ -660,7 +660,7 @@ export const EditPostgreSqlPhysicalSpecificDataComponent = ({
                 disabled={!isAllFieldsFilled}
                 className="mr-5"
               >
-                Test connection
+                {t('common.testConnection')}
               </Button>
             )}
 
@@ -672,7 +672,7 @@ export const EditPostgreSqlPhysicalSpecificDataComponent = ({
                 disabled={!isAllFieldsFilled}
                 className="mr-5"
               >
-                {saveButtonText || 'Save'}
+                {saveButtonText || t('common.save')}
               </Button>
             )}
           </>,

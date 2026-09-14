@@ -12,8 +12,10 @@ import {
   SignUpComponent,
 } from '../features/users';
 import { useScreenHeight } from '../shared/hooks';
+import { useTranslation } from '../shared/i18n';
 
 export function AuthPageComponent() {
+  const { t } = useTranslation();
   const [isAdminHasPassword, setIsAdminHasPassword] = useState(false);
   const [authMode, setAuthMode] = useState<'signIn' | 'signUp' | 'requestReset' | 'resetPassword'>(
     'signUp',
@@ -32,7 +34,7 @@ export function AuthPageComponent() {
         setLoading(false);
       })
       .catch((e) => {
-        alert('Failed to check admin password status: ' + (e as Error).message);
+        alert(t('auth.failedCheckAdmin') + (e as Error).message);
       });
   };
 

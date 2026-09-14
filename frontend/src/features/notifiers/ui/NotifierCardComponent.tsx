@@ -3,6 +3,7 @@ import { InfoCircleOutlined } from '@ant-design/icons';
 import { type Notifier } from '../../../entity/notifiers';
 import { getNotifierLogoFromType } from '../../../entity/notifiers/models/getNotifierLogoFromType';
 import { getNotifierNameFromType } from '../../../entity/notifiers/models/getNotifierNameFromType';
+import { useTranslation } from '../../../shared/i18n';
 
 interface Props {
   notifier: Notifier;
@@ -15,6 +16,8 @@ export const NotifierCardComponent = ({
   selectedNotifierId,
   setSelectedNotifierId,
 }: Props) => {
+  const { t } = useTranslation();
+
   return (
     <div
       className={`mb-3 cursor-pointer rounded p-3 shadow ${selectedNotifierId === notifier.id ? 'bg-blue-100 dark:bg-blue-800' : 'bg-white dark:bg-gray-800'}`}
@@ -24,7 +27,7 @@ export const NotifierCardComponent = ({
 
       <div className="flex items-center">
         <div className="text-sm text-gray-500 dark:text-gray-400">
-          Notify to {getNotifierNameFromType(notifier.notifierType)}
+          {t('notifiers.notifyTo')} {getNotifierNameFromType(notifier.notifierType)}
         </div>
 
         <img
@@ -37,7 +40,7 @@ export const NotifierCardComponent = ({
       {notifier.lastSendError && (
         <div className="mt-1 flex items-center text-sm text-red-600 underline dark:text-red-400">
           <InfoCircleOutlined className="mr-1" style={{ color: 'red' }} />
-          Has send error
+          {t('notifiers.hasSendError')}
         </div>
       )}
     </div>

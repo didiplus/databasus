@@ -2,6 +2,7 @@ import { Button } from 'antd';
 import { useState } from 'react';
 
 import { type Database, DatabaseType } from '../../../../entity/databases';
+import { useTranslation } from '../../../../shared/i18n';
 
 interface Props {
   database: Database;
@@ -10,35 +11,36 @@ interface Props {
   onSelected: (type: DatabaseType) => void;
 }
 
-const backupTypeOptions = [
-  {
-    type: DatabaseType.POSTGRES_LOGICAL,
-    title: 'Logical',
-    description: 'Recommended for databases under 50 GB. Simpler to set up.',
-  },
-  {
-    type: DatabaseType.POSTGRES_PHYSICAL,
-    title: 'Physical',
-    description:
-      'For databases over 50 GB. Enables point-in-time recovery and better RPO/RTO, but needs extra setup.',
-  },
-];
-
 export const ChoosePostgresBackupTypeComponent = ({
   database,
   saveButtonText,
   onBack,
   onSelected,
 }: Props) => {
+  const { t } = useTranslation();
+
   const [selectedType, setSelectedType] = useState<DatabaseType>(
     database.type === DatabaseType.POSTGRES_PHYSICAL
       ? DatabaseType.POSTGRES_PHYSICAL
       : DatabaseType.POSTGRES_LOGICAL,
   );
 
+  const backupTypeOptions = [
+    {
+      type: DatabaseType.POSTGRES_LOGICAL,
+      title: t('databases.backupTypeLogical'),
+      description: t('databases.backupTypeLogicalDesc'),
+    },
+    {
+      type: DatabaseType.POSTGRES_PHYSICAL,
+      title: t('databases.backupTypePhysical'),
+      description: t('databases.backupTypePhysicalDesc'),
+    },
+  ];
+
   return (
     <div>
-      <div className="my-3 text-center text-lg">Choose backup type</div>
+      <div className="my-3 text-center text-lg">{t('databases.chooseBackupType')}</div>
 
       <div className="grid grid-cols-2 gap-3">
         {backupTypeOptions.map((option) => {
@@ -68,11 +70,11 @@ export const ChoosePostgresBackupTypeComponent = ({
 
       <div className="mt-5 flex">
         <Button className="mr-auto" type="primary" ghost onClick={onBack}>
-          Back
+          {t('common.back')}
         </Button>
 
         <Button type="primary" onClick={() => onSelected(selectedType)}>
-          {saveButtonText || 'Continue'}
+          {saveButtonText || t('common.continue')}
         </Button>
       </div>
     </div>

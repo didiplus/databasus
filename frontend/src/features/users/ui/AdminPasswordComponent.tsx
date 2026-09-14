@@ -3,6 +3,7 @@ import { App, Button, Input } from 'antd';
 import { type JSX, useState } from 'react';
 
 import { userApi } from '../../../entity/users';
+import { useTranslation } from '../../../shared/i18n';
 
 interface AdminPasswordComponentProps {
   onPasswordSet?: () => void;
@@ -11,6 +12,7 @@ interface AdminPasswordComponentProps {
 export function AdminPasswordComponent({
   onPasswordSet,
 }: AdminPasswordComponentProps): JSX.Element {
+  const { t } = useTranslation();
   const { message } = App.useApp();
   const [password, setPassword] = useState('');
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -32,7 +34,7 @@ export function AdminPasswordComponent({
 
     if (password.length < 8) {
       setPasswordError(true);
-      message.error('Password must be at least 8 characters long');
+        message.error(t('auth.passwordMin8'));
       return false;
     }
     setPasswordError(false);
@@ -79,18 +81,18 @@ export function AdminPasswordComponent({
 
   return (
     <div className="w-full max-w-[300px]">
-      <div className="mb-5 text-center text-2xl font-bold">Sign up admin</div>
+      <div className="mb-5 text-center text-2xl font-bold">{t('auth.adminPasswordTitle')}</div>
 
       <div className="mx-auto mb-4 max-w-[250px] text-center text-sm text-gray-600 dark:text-gray-400">
-        Then you will be able to sign in with login &quot;admin&quot; and password you set
+        {t('auth.adminPasswordHint')}
       </div>
 
-      <div className="my-1 text-xs font-semibold">Email</div>
+      <div className="my-1 text-xs font-semibold">{t('common.email')}</div>
       <Input value="admin" disabled />
 
-      <div className="my-1 text-xs font-semibold">Password</div>
+      <div className="my-1 text-xs font-semibold">{t('common.password')}</div>
       <Input.Password
-        placeholder="********"
+        placeholder={t('auth.passwordPlaceholder')}
         value={password}
         onChange={(e) => {
           setPasswordError(false);
@@ -102,9 +104,9 @@ export function AdminPasswordComponent({
         autoComplete="new-password"
       />
 
-      <div className="my-1 text-xs font-semibold">Confirm password</div>
+      <div className="my-1 text-xs font-semibold">{t('auth.confirmPassword')}</div>
       <Input.Password
-        placeholder="********"
+        placeholder={t('auth.passwordPlaceholder')}
         value={confirmPassword}
         status={confirmPasswordError ? 'error' : undefined}
         onChange={(e) => {
@@ -130,7 +132,7 @@ export function AdminPasswordComponent({
         }}
         type="primary"
       >
-        Set password
+        {t('auth.setPassword')}
       </Button>
 
       {adminPasswordError && (

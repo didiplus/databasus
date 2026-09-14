@@ -8,6 +8,7 @@ import {
   databaseApi,
   getDatabaseTypeLabel,
 } from '../../../../entity/databases';
+import { useTranslation } from '../../../../shared/i18n';
 
 interface Props {
   database: Database;
@@ -29,6 +30,7 @@ export const CreateReadOnlyComponent = ({
   onSkipped,
   onReadOnlyUserNotSuggested,
 }: Props) => {
+  const { t } = useTranslation();
   const { message } = App.useApp();
 
   const [isCheckingReadOnlyUserSuggestion, setIsCheckingReadOnlyUserSuggestion] = useState(false);
@@ -44,8 +46,8 @@ export const CreateReadOnlyComponent = ({
   const isMongodb = database.type === DatabaseType.MONGODB;
   const databaseTypeName = getDatabaseTypeLabel(database.type);
 
-  const privilegesLabel = isMongodb ? 'roles' : 'privileges';
-  const userKindNoun = isPhysicalPostgres ? 'replication-only user' : 'read-only user';
+  const privilegesLabel = isMongodb ? t('databases.roles') : t('databases.privileges');
+  const userKindNoun = isPhysicalPostgres ? t('databases.replicationOnlyUser') : t('databases.readOnlyUser');
 
   const fetchReadOnlyUserSuggestion =
     async (): Promise<ShouldSuggestReadOnlyUserResponse | null> => {
@@ -81,9 +83,7 @@ export const CreateReadOnlyComponent = ({
 
     if (!response.isForcedWalRotationAvailable) {
       message.warning(
-        'This source would not grant EXECUTE on pg_switch_wal() to the new user, which ' +
-          'continuous WAL streaming needs to keep the recovery point close to the present. ' +
-          'Full and incremental backups work normally with these credentials.',
+        t('databases.walRotationWarning'),
         FORCED_WAL_ROTATION_WARNING_SECONDS,
       );
     }
@@ -156,7 +156,7 @@ export const CreateReadOnlyComponent = ({
     return (
       <div className="flex items-center">
         <Spin />
-        <span className="ml-3">Checking {userKindNoun}...</span>
+        <span className="ml-3">{t('databases.checkingUserKind', { kind: userKindNoun })}</span>
       </div>
     );
   }
@@ -164,45 +164,42 @@ export const CreateReadOnlyComponent = ({
   return (
     <div>
       <div className="mb-5">
-        <p className="mb-3 text-lg font-bold">Create a {userKindNoun} for Databasus?</p>
+        <p className="mb-3 text-lg font-bold">{t('databases.createUserKindQuestion', { kind: userKindNoun })}</p>
 
         <p className="mb-2">
-          A {userKindNoun} is a {databaseTypeName} user with limited permissions that can only read
-          data from your database, not modify it. This is recommended for backup operations because:
+          {t('databases.readOnlyUserExplanation', { kind: userKindNoun, type: databaseTypeName })}
         </p>
 
         <ul className="mb-2 ml-5 list-disc">
-          <li>it prevents accidental data modifications during backup</li>
-          <li>it follows the principle of least privilege</li>
-          <li>it&apos;s a security best practice</li>
+          <li>{t('databases.readOnlyBenefit1')}</li>
+          <li>{t('databases.readOnlyBenefit2')}</li>
+          <li>{t('databases.readOnlyBenefit3')}</li>
         </ul>
 
         <p className="mb-2">
-          Databasus enforce enterprise-grade security (
+          {t('databases.securityEnforcePrefix')}{' '}
           <a
             href="https://databasus.com/security"
             target="_blank"
             rel="noreferrer"
             className="!text-blue-600 dark:!text-blue-400"
           >
-            read in details here
-          </a>
-          ). However, it is not possible to be covered from all possible risks.
+            {t('databases.readInDetailsHere')}
+          </a>{' '}
+          {t('databases.securityEnforceSuffix')}
         </p>
 
         <p className="mt-3">
-          <b>A {userKindNoun} allows to avoid storing credentials with write access at all</b>. Even
-          in the worst case of hacking, nobody will be able to corrupt your data.
+          <b>{t('databases.avoidWriteCredentials', { kind: userKindNoun })}</b>.{' '}
+          {t('databases.worstCaseHacking')}
         </p>
 
         <p className="mt-3">
           {privileges.length === 0 ? (
-            <>
-              Current user has <b>no write {privilegesLabel}</b>.
-            </>
+            <b>{t('databases.currentUserNoWrite', { label: privilegesLabel })}</b>
           ) : (
             <>
-              Current user has the following write {privilegesLabel}:{' '}
+              <b>{t('databases.currentUserHasWrite', { label: privilegesLabel })}</b>{' '}
               <span
                 className={shouldShowExpandToggle() ? 'cursor-pointer hover:opacity-80' : ''}
                 onClick={() =>
@@ -212,7 +209,7 @@ export const CreateReadOnlyComponent = ({
                 {getPrivilegesDisplay()}
                 {shouldShowExpandToggle() && (
                   <span className="ml-1 text-xs text-blue-600 hover:opacity-80">
-                    ({isPrivilegesExpanded ? 'collapse' : 'expand'})
+                    ({isPrivilegesExpanded ? t('databases.collapse') : t('databases.expand')})
                   </span>
                 )}
               </span>
@@ -223,11 +220,11 @@ export const CreateReadOnlyComponent = ({
 
       <div className="mt-5 flex">
         <Button className="mr-auto" type="primary" ghost onClick={() => onGoBack()}>
-          Back
+          {t('common.back')}
         </Button>
 
         <Button className="mr-2 ml-auto" danger ghost onClick={handleSkip}>
-          Skip
+          {t('common.skip')}
         </Button>
 
         <Button
@@ -236,38 +233,36 @@ export const CreateReadOnlyComponent = ({
           loading={isCreatingReadOnlyUser}
           disabled={isCreatingReadOnlyUser}
         >
-          Yes, create {userKindNoun}
+          {t('databases.yesCreateUserKind', { kind: userKindNoun })}
         </Button>
       </div>
 
       <Modal
-        title={`Skip ${userKindNoun} creation?`}
+        title={t('databases.skipUserKindCreation', { kind: userKindNoun })}
         open={isShowSkipConfirmation}
         onCancel={() => setShowSkipConfirmation(false)}
         footer={null}
         width={450}
       >
         <div className="mb-5">
-          <p className="mb-2">Are you sure you want to skip creating a {userKindNoun}?</p>
+          <p className="mb-2">{t('databases.skipCreationConfirm', { kind: userKindNoun })}</p>
 
           <p className="mb-2">
-            Using a user with full permissions for backups is not recommended and may pose security
-            risks. Databasus is highly recommending you to not skip this step.
+            {t('databases.skipSecurityWarning')}
           </p>
 
           <p>
-            100% protection is never possible. It&apos;s better to be safe in case of 0.01% risk of
-            full hacking. So it is better to follow the secure way with read-only user.
+            {t('databases.protectionNeverPossible')}
           </p>
         </div>
 
         <div className="flex justify-end">
           <Button className="mr-2" danger ghost onClick={handleSkipConfirmed}>
-            Yes, I accept risks
+            {t('databases.acceptRisks')}
           </Button>
 
           <Button type="primary" onClick={() => setShowSkipConfirmation(false)}>
-            Let&apos;s continue with the secure way
+            {t('databases.continueSecureWay')}
           </Button>
         </div>
       </Modal>

@@ -21,6 +21,7 @@ import {
   verificationRunsApi,
 } from '../../../../entity/verification/runs';
 import { getUserTimeFormat } from '../../../../shared/time';
+import { useTranslation } from '../../../../shared/i18n';
 import { VerificationDetailDrawer } from './VerificationDetailDrawer';
 
 interface Props {
@@ -55,67 +56,6 @@ const formatDurationMs = (durationMs?: number) => {
   return `${seconds}s`;
 };
 
-const renderStatus = (status: VerificationStatus) => {
-  if (status === VerificationStatus.COMPLETED) {
-    return (
-      <div className="flex items-center text-green-600">
-        <CheckCircleOutlined className="mr-2" style={{ fontSize: 16 }} />
-        <span>Successful</span>
-      </div>
-    );
-  }
-
-  if (status === VerificationStatus.FAILED) {
-    return (
-      <div className="flex items-center text-red-600">
-        <ExclamationCircleOutlined className="mr-2" style={{ fontSize: 16 }} />
-        <span>Failed</span>
-      </div>
-    );
-  }
-
-  if (status === VerificationStatus.RUNNING) {
-    return (
-      <div className="flex items-center font-bold text-blue-600">
-        <SyncOutlined spin />
-        <span className="ml-2">Running</span>
-      </div>
-    );
-  }
-
-  if (status === VerificationStatus.PENDING) {
-    return (
-      <div className="flex items-center text-gray-600">
-        <ClockCircleOutlined className="mr-2" style={{ fontSize: 16 }} />
-        <span>Pending</span>
-      </div>
-    );
-  }
-
-  if (status === VerificationStatus.CANCELED) {
-    return (
-      <div className="flex items-center text-gray-500">
-        <CloseCircleOutlined className="mr-2" style={{ fontSize: 16 }} />
-        <span>Canceled</span>
-      </div>
-    );
-  }
-
-  return (
-    <div className="flex items-center">
-      <PauseCircleOutlined className="mr-2" style={{ fontSize: 16 }} />
-      <span>{status}</span>
-    </div>
-  );
-};
-
-const renderTrigger = (trigger: VerificationTrigger) => {
-  if (trigger === VerificationTrigger.MANUAL) {
-    return <Tag color="blue">Manual</Tag>;
-  }
-
-  return <Tag color="purple">Scheduled</Tag>;
-};
 
 export const VerificationsComponent = ({
   database,
@@ -123,6 +63,70 @@ export const VerificationsComponent = ({
   isDirectlyUnderTab,
   scrollContainerRef,
 }: Props) => {
+  const { t } = useTranslation();
+
+  const renderStatus = (status: VerificationStatus) => {
+    if (status === VerificationStatus.COMPLETED) {
+      return (
+        <div className="flex items-center text-green-600">
+          <CheckCircleOutlined className="mr-2" style={{ fontSize: 16 }} />
+          <span>{t('common.successful')}</span>
+        </div>
+      );
+    }
+
+    if (status === VerificationStatus.FAILED) {
+      return (
+        <div className="flex items-center text-red-600">
+          <ExclamationCircleOutlined className="mr-2" style={{ fontSize: 16 }} />
+          <span>{t('common.failed')}</span>
+        </div>
+      );
+    }
+
+    if (status === VerificationStatus.RUNNING) {
+      return (
+        <div className="flex items-center font-bold text-blue-600">
+          <SyncOutlined spin />
+          <span className="ml-2">{t('common.running')}</span>
+        </div>
+      );
+    }
+
+    if (status === VerificationStatus.PENDING) {
+      return (
+        <div className="flex items-center text-gray-600">
+          <ClockCircleOutlined className="mr-2" style={{ fontSize: 16 }} />
+          <span>{t('common.pending')}</span>
+        </div>
+      );
+    }
+
+    if (status === VerificationStatus.CANCELED) {
+      return (
+        <div className="flex items-center text-gray-500">
+          <CloseCircleOutlined className="mr-2" style={{ fontSize: 16 }} />
+          <span>{t('common.canceled')}</span>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex items-center">
+        <PauseCircleOutlined className="mr-2" style={{ fontSize: 16 }} />
+        <span>{status}</span>
+      </div>
+    );
+  };
+
+  const renderTrigger = (trigger: VerificationTrigger) => {
+    if (trigger === VerificationTrigger.MANUAL) {
+      return <Tag color="blue">{t('common.manual')}</Tag>;
+    }
+
+    return <Tag color="purple">{t('common.scheduled')}</Tag>;
+  };
+
   const [verifications, setVerifications] = useState<RestoreVerification[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedVerificationId, setSelectedVerificationId] = useState<string | undefined>();
@@ -200,7 +204,7 @@ export const VerificationsComponent = ({
           {isCancelling ? (
             <SyncOutlined spin />
           ) : (
-            <Tooltip title="Cancel verification">
+            <Tooltip title={t('verification.cancelVerification')}>
               <CloseCircleOutlined
                 className="cursor-pointer"
                 onClick={() => {
@@ -222,7 +226,7 @@ export const VerificationsComponent = ({
     ) {
       return (
         <div className="flex gap-2 text-lg">
-          <Tooltip title="View details">
+          <Tooltip title={t('verification.viewDetails')}>
             <EyeOutlined
               className="cursor-pointer"
               onClick={() => setSelectedVerificationId(record.id)}
@@ -298,7 +302,7 @@ export const VerificationsComponent = ({
 
   const columns: ColumnsType<RestoreVerification> = [
     {
-      title: 'Created at',
+      title: t('verification.columnCreatedAt'),
       dataIndex: 'createdAt',
       key: 'createdAt',
       width: 220,
@@ -312,14 +316,14 @@ export const VerificationsComponent = ({
       ),
     },
     {
-      title: 'Status',
+      title: t('verification.columnStatus'),
       dataIndex: 'status',
       key: 'status',
       width: 160,
       render: (status: VerificationStatus) => renderStatus(status),
     },
     {
-      title: 'Trigger',
+      title: t('verification.columnTrigger'),
       dataIndex: 'trigger',
       key: 'trigger',
       width: 110,
@@ -328,8 +332,8 @@ export const VerificationsComponent = ({
     {
       title: (
         <div className="flex items-center">
-          Duration
-          <Tooltip className="ml-1" title="Restore + verify time reported by the agent.">
+          {t('verification.columnDuration')}
+          <Tooltip className="ml-1" title={t('verification.durationTooltip')}>
             <ExclamationCircleOutlined />
           </Tooltip>
         </div>
@@ -349,14 +353,14 @@ export const VerificationsComponent = ({
           <div className="text-sm">
             <div>{formatDurationMs(total)}</div>
             <div className="text-xs text-gray-500 dark:text-gray-400">
-              restore {formatDurationMs(restoreMs)}
+              {t('verification.restore')} {formatDurationMs(restoreMs)}
             </div>
           </div>
         );
       },
     },
     {
-      title: 'Actions',
+      title: t('verification.columnActions'),
       key: 'actions',
       width: 120,
       render: (_, record: RestoreVerification) => renderActions(record),
@@ -367,25 +371,24 @@ export const VerificationsComponent = ({
     <div
       className={`w-full bg-white p-3 shadow md:p-5 dark:bg-gray-800 ${isDirectlyUnderTab ? 'rounded-tr-md rounded-br-md rounded-bl-md' : 'rounded-md'}`}
     >
-      <h2 className="text-lg font-bold md:text-xl dark:text-white">Restore verifications</h2>
+      <h2 className="text-lg font-bold md:text-xl dark:text-white">{t('verification.runsTitle')}</h2>
 
       <p className="mt-2 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
-        Each row is one attempt to restore a backup of this database into a temporary copy
+        {t('verification.runsDescription')}
       </p>
 
       {hasAgents === false && (
         <div className="mt-3 flex max-w-2xl max-w-[400px] items-center gap-2 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/40 dark:text-amber-200">
           <ExclamationCircleOutlined className="shrink-0" />
           <span>
-            No verification agents registered - please add it in Databasus settings tab in
-            &quot;Verification agents&quot; section.{' '}
+            {t('verification.noAgentsRegistered')}{' '}
             <a
               href="https://databasus.com/restore-verification"
               target="_blank"
               rel="noopener noreferrer"
               className="underline hover:no-underline"
             >
-              Learn more
+              {t('common.learnMore')}
             </a>
           </span>
         </div>
@@ -405,7 +408,7 @@ export const VerificationsComponent = ({
           />
           {!isLoading && verifications.length === 0 && (
             <div className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
-              No restore checks yet
+              {t('verification.noRestoreChecks')}
             </div>
           )}
           {isLoadingMore && (
@@ -415,7 +418,7 @@ export const VerificationsComponent = ({
           )}
           {!hasMore && verifications.length > 0 && (
             <div className="mt-2 text-center text-gray-500 dark:text-gray-400">
-              All restore checks loaded ({totalVerifications} total)
+              {t('verification.allRestoreChecksLoaded', { total: totalVerifications })}
             </div>
           )}
         </div>
@@ -428,7 +431,7 @@ export const VerificationsComponent = ({
             </div>
           ) : verifications.length === 0 ? (
             <div className="py-8 text-center text-gray-500 dark:text-gray-400">
-              No restore checks yet
+              {t('verification.noRestoreChecks')}
             </div>
           ) : (
             verifications.map((verification) => (
@@ -438,7 +441,7 @@ export const VerificationsComponent = ({
               >
                 <div className="flex items-start justify-between">
                   <div>
-                    <div className="text-xs text-gray-500 dark:text-gray-400">Created at</div>
+                    <div className="text-xs text-gray-500 dark:text-gray-400">{t('verification.columnCreatedAt')}</div>
                     <div className="text-sm font-medium">
                       {dayjs.utc(verification.createdAt).local().format(getUserTimeFormat().format)}
                     </div>
@@ -453,7 +456,7 @@ export const VerificationsComponent = ({
                   {renderTrigger(verification.trigger)}
                   {verification.attemptCount > 1 && (
                     <span className="text-xs text-gray-500">
-                      attempt {verification.attemptCount}
+                      {t('verification.attempt')} {verification.attemptCount}
                     </span>
                   )}
                 </div>
@@ -484,7 +487,7 @@ export const VerificationsComponent = ({
           )}
           {!hasMore && verifications.length > 0 && (
             <div className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
-              All restore checks loaded ({totalVerifications} total)
+              {t('verification.allRestoreChecksLoaded', { total: totalVerifications })}
             </div>
           )}
         </div>

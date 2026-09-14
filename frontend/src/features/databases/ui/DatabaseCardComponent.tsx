@@ -8,6 +8,7 @@ import { type Database, DatabaseType } from '../../../entity/databases';
 import { HealthStatus } from '../../../entity/databases/model/HealthStatus';
 import type { Storage } from '../../../entity/storages';
 import { getStorageLogoFromType } from '../../../entity/storages/models/getStorageLogoFromType';
+import { useTranslation } from '../../../shared/i18n';
 
 interface Props {
   database: Database;
@@ -20,6 +21,7 @@ export const DatabaseCardComponent = ({
   selectedDatabaseId,
   setSelectedDatabaseId,
 }: Props) => {
+  const { t } = useTranslation();
   const [storage, setStorage] = useState<Storage | undefined>();
 
   useEffect(() => {
@@ -48,7 +50,7 @@ export const DatabaseCardComponent = ({
                 database.healthStatus === HealthStatus.AVAILABLE ? 'bg-green-500' : 'bg-red-500'
               }`}
             >
-              {database.healthStatus === HealthStatus.AVAILABLE ? 'Available' : 'Unavailable'}
+              {database.healthStatus === HealthStatus.AVAILABLE ? t('databases.healthAvailable') : t('databases.healthUnavailable')}
             </div>
           </div>
         )}
@@ -56,7 +58,7 @@ export const DatabaseCardComponent = ({
 
       {storage && (
         <div className="text-sm text-gray-500 dark:text-gray-400">
-          <span>Storage: </span>
+          <span>{t('databases.storageLabel')}: </span>
           <span className="inline-flex items-center">
             {storage.name}{' '}
             {storage.type && (
@@ -72,14 +74,14 @@ export const DatabaseCardComponent = ({
 
       {database.lastBackupTime && (
         <div className="text-gray-500 dark:text-gray-400">
-          Last backup {dayjs(database.lastBackupTime).fromNow()}
+          {t('databases.lastBackup')} {dayjs(database.lastBackupTime).fromNow()}
         </div>
       )}
 
       {database.lastBackupErrorMessage && (
         <div className="mt-1 flex items-center text-sm text-red-600 underline dark:text-red-400">
           <InfoCircleOutlined className="mr-1" style={{ color: 'red' }} />
-          Has backup error
+          {t('databases.hasBackupError')}
         </div>
       )}
     </div>

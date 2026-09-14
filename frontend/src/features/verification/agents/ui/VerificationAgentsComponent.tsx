@@ -16,6 +16,7 @@ import {
   verificationAgentApi,
 } from '../../../../entity/verification/agents';
 import { ClipboardHelper } from '../../../../shared/lib/ClipboardHelper';
+import { useTranslation } from '../../../../shared/i18n';
 import { AGENT_STATUS_COLORS, AGENT_STATUS_LABELS, getAgentStatus } from '../model/agentStatus';
 
 const LIST_REFRESH_MS = 15_000;
@@ -65,6 +66,7 @@ const buildLaunchCommand = (agentId: string, token: string): string => {
 
 export const VerificationAgentsComponent = () => {
   const { message } = App.useApp();
+  const { t } = useTranslation();
 
   const [agents, setAgents] = useState<VerificationAgent[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -89,9 +91,9 @@ export const VerificationAgentsComponent = () => {
   const copyToClipboard = async (text: string) => {
     try {
       await ClipboardHelper.copyToClipboard(text);
-      message.success('Copied to clipboard');
+      message.success(t('common.copiedToClipboard'));
     } catch {
-      message.error('Failed to copy');
+      message.error(t('common.failedToCopy'));
     }
   };
 
@@ -106,7 +108,7 @@ export const VerificationAgentsComponent = () => {
       <pre className="rounded-md bg-gray-900 p-4 pr-10 font-mono text-sm break-all whitespace-pre-wrap text-gray-100">
         {code}
       </pre>
-      <Tooltip title="Copy">
+      <Tooltip title={t('common.copy')}>
         <button
           className="absolute top-2 right-2 cursor-pointer rounded p-1 text-gray-400 hover:text-white"
           onClick={() => copyToClipboard(code)}
@@ -130,9 +132,9 @@ export const VerificationAgentsComponent = () => {
 
   const renderAgentIdRow = (agentId: string) => (
     <div className="mt-3 flex items-center text-sm text-gray-500 dark:text-gray-400">
-      <span className="mr-1">Agent ID:</span>
+      <span className="mr-1">{t('verification.agentId')}</span>
       <code className="rounded bg-gray-100 px-2 py-0.5 text-xs dark:bg-gray-700">{agentId}</code>
-      <Tooltip title="Copy">
+      <Tooltip title={t('common.copy')}>
         <button
           className="ml-1 cursor-pointer rounded p-1 text-gray-400 hover:text-gray-700 dark:hover:text-white"
           onClick={() => copyToClipboard(agentId)}
@@ -145,7 +147,7 @@ export const VerificationAgentsComponent = () => {
 
   const renderArchitecturePicker = () => (
     <div className="mt-4">
-      <div className="mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">Architecture</div>
+      <div className="mb-1 text-sm font-medium text-gray-700 dark:text-gray-300">{t('verification.architecture')}</div>
       <div className="flex">
         {renderArchButton('amd64')}
         {renderArchButton('arm64')}
@@ -155,31 +157,19 @@ export const VerificationAgentsComponent = () => {
 
   const renderInstallAndLaunchSteps = (agentId: string, token: string) => (
     <>
-      <div className="mt-4 font-semibold dark:text-white">Step 1 - Install</div>
+      <div className="mt-4 font-semibold dark:text-white">{t('verification.step1Install')}</div>
       {renderCodeBlock(buildInstallCommand(selectedArch))}
 
-      <div className="mt-4 font-semibold dark:text-white">Step 2 - Launch</div>
-      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
-        The capacity values below are starting defaults - tune <code>--max-cpu</code>,{' '}
-        <code>--max-ram-mb</code>, <code>--max-disk-gb</code> and <code>--max-concurrent-jobs</code>{' '}
-        to the machine running the agent.
-      </p>
+      <div className="mt-4 font-semibold dark:text-white">{t('verification.step2Launch')}</div>
+      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{t('verification.capacityHint')}</p>
       {renderCodeBlock(buildLaunchCommand(agentId, token))}
 
-      <div className="mt-4 font-semibold dark:text-white">After installation</div>
+      <div className="mt-4 font-semibold dark:text-white">{t('verification.afterInstallation')}</div>
       <ul className="mt-1 list-disc space-y-1 pl-5 text-sm text-gray-600 dark:text-gray-400">
-        <li>
-          The agent runs in the background after <code>start</code>
-        </li>
-        <li>
-          Check status: <code>./verification-agent status</code>
-        </li>
-        <li>
-          View logs: <code>databasus-verification.log</code> in the working directory
-        </li>
-        <li>
-          Stop the agent: <code>./verification-agent stop</code>
-        </li>
+        <li>{t('verification.afterInstallRunsBg')}</li>
+        <li>{t('verification.checkStatus')}</li>
+        <li>{t('verification.viewLogs')}</li>
+        <li>{t('verification.stopAgent')}</li>
       </ul>
     </>
   );
@@ -191,7 +181,7 @@ export const VerificationAgentsComponent = () => {
   const handleCreate = async () => {
     const name = newAgentName.trim();
     if (!name) {
-      message.error('Name is required');
+      message.error(t('auth.nameRequired'));
       return;
     }
 
@@ -236,7 +226,7 @@ export const VerificationAgentsComponent = () => {
     try {
       await verificationAgentApi.deleteAgent(agent.id);
       setAgents((prev) => prev.filter((a) => a.id !== agent.id));
-      message.success(`Agent "${agent.name}" deleted`);
+      message.success(t('verification.agentDeleted', { name: agent.name }));
     } catch (e) {
       message.error((e as Error).message);
     } finally {
@@ -280,7 +270,7 @@ export const VerificationAgentsComponent = () => {
 
   const columns: ColumnsType<VerificationAgent> = [
     {
-      title: 'Name',
+      title: t('verification.columnName'),
       dataIndex: 'name',
       key: 'name',
       render: (name: string) => (
@@ -288,7 +278,7 @@ export const VerificationAgentsComponent = () => {
       ),
     },
     {
-      title: 'Status',
+      title: t('verification.columnStatus'),
       key: 'status',
       width: 180,
       render: (_, record) => {
@@ -308,19 +298,19 @@ export const VerificationAgentsComponent = () => {
       },
     },
     {
-      title: 'Capacity',
+      title: t('verification.columnCapacity'),
       key: 'capacity',
       render: (_, record) => {
         const capacity = formatCapacity(record);
         return capacity ? (
           <span className="text-xs text-gray-700 dark:text-gray-300">{capacity}</span>
         ) : (
-          <span className={`text-xs ${MUTED_TEXT_CLASS}`}>not yet reported</span>
+          <span className={`text-xs ${MUTED_TEXT_CLASS}`}>{t('common.notYetReported')}</span>
         );
       },
     },
     {
-      title: 'Created',
+      title: t('verification.columnCreated'),
       dataIndex: 'createdAt',
       key: 'createdAt',
       width: 110,
@@ -335,7 +325,7 @@ export const VerificationAgentsComponent = () => {
       align: 'right',
       render: (_, record) => (
         <div className="flex items-center justify-end gap-1">
-          <Tooltip title="View install commands">
+          <Tooltip title={t('verification.viewInstallCommands')}>
             <Button
               type="text"
               size="small"
@@ -344,7 +334,7 @@ export const VerificationAgentsComponent = () => {
             />
           </Tooltip>
 
-          <Tooltip title="Rotate token">
+          <Tooltip title={t('verification.rotateToken')}>
             <Button
               type="text"
               size="small"
@@ -354,13 +344,13 @@ export const VerificationAgentsComponent = () => {
           </Tooltip>
 
           <Popconfirm
-            title="Delete this agent?"
-            okText="Delete"
+            title={t('verification.deleteThisAgent')}
+            okText={t('common.delete')}
             okButtonProps={{ danger: true, loading: deletingAgentId === record.id }}
-            cancelText="Cancel"
+            cancelText={t('common.cancel')}
             onConfirm={() => handleDelete(record)}
           >
-            <Tooltip title="Delete">
+            <Tooltip title={t('common.delete')}>
               <Button type="text" size="small" danger icon={<DeleteOutlined />} />
             </Tooltip>
           </Popconfirm>
@@ -373,7 +363,7 @@ export const VerificationAgentsComponent = () => {
     <section className="my-8 max-w-[800px]">
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-baseline gap-3">
-          <h2 className="text-xl font-bold dark:text-white">Verification agents</h2>
+          <h2 className="text-xl font-bold dark:text-white">{t('verification.agentsTitle')}</h2>
         </div>
 
         <div className="flex items-center gap-2">
@@ -383,19 +373,19 @@ export const VerificationAgentsComponent = () => {
             icon={<PlusOutlined />}
             onClick={() => setIsCreateModalOpen(true)}
           >
-            Create
+            {t('common.create')}
           </Button>
         </div>
       </div>
 
       <p className="mb-4 max-w-2xl text-sm text-gray-500 dark:text-gray-400">
-        Agents that run restore verifications to confirm a backup is restorable (
+        {t('verification.agentsDescription')}
         <a
           href="https://databasus.com/restore-verification"
           target="_blank"
           rel="noopener noreferrer"
         >
-          read more
+          {t('common.readMore')}
         </a>
         )
       </p>
@@ -405,7 +395,7 @@ export const VerificationAgentsComponent = () => {
           <Spin indicator={<LoadingOutlined spin />} />
         </div>
       ) : agents.length === 0 ? (
-        <p className="text-sm text-gray-500 dark:text-gray-400">No agents registered yet.</p>
+        <p className="text-sm text-gray-500 dark:text-gray-400">{t('verification.noAgents')}</p>
       ) : (
         <Table
           columns={columns}
@@ -418,7 +408,7 @@ export const VerificationAgentsComponent = () => {
       )}
 
       <Modal
-        title="Create verification agent"
+        title={t('verification.createAgentTitle')}
         open={isCreateModalOpen}
         onCancel={() => {
           setIsCreateModalOpen(false);
@@ -432,18 +422,18 @@ export const VerificationAgentsComponent = () => {
               setNewAgentName('');
             }}
           >
-            Cancel
+            {t('common.cancel')}
           </Button>,
           <Button key="create" type="primary" loading={isCreating} onClick={handleCreate}>
-            Create
+            {t('common.create')}
           </Button>,
         ]}
       >
         <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
-          A token will be generated and shown exactly once on the next screen.
+          {t('verification.tokenHint')}
         </p>
         <Input
-          placeholder="Agent name"
+          placeholder={t('verification.agentNamePlaceholder')}
           value={newAgentName}
           onChange={(e) => setNewAgentName(e.target.value)}
           onPressEnter={handleCreate}
@@ -453,12 +443,12 @@ export const VerificationAgentsComponent = () => {
       </Modal>
 
       <Modal
-        title="Rotate token"
+        title={t('verification.rotateTokenTitle')}
         open={rotatingAgent !== null}
         onCancel={() => setRotatingAgent(null)}
         footer={[
           <Button key="cancel" onClick={() => setRotatingAgent(null)}>
-            Cancel
+            {t('common.cancel')}
           </Button>,
           <Button
             key="rotate"
@@ -467,31 +457,29 @@ export const VerificationAgentsComponent = () => {
             loading={isRotating}
             onClick={handleConfirmRotate}
           >
-            Rotate token
+            {t('verification.rotateToken')}
           </Button>,
         ]}
       >
         <p className="text-sm text-gray-700 dark:text-gray-300">
-          Rotating the token for <strong>{rotatingAgent?.name}</strong> invalidates the existing
-          token immediately. Any worker still using the old token will be rejected on its next
-          heartbeat.
+          {t('verification.rotatingTokenHint', { name: rotatingAgent?.name ?? '' })}
         </p>
       </Modal>
 
       <Modal
-        title="Agent token"
+        title={t('verification.agentTokenTitle')}
         open={revealedToken !== null}
         onCancel={closeRevealedTokenModal}
         width={640}
         footer={
           <Button type="primary" onClick={closeRevealedTokenModal}>
-            I&apos;ve saved the token
+            {t('verification.savedToken')}
           </Button>
         }
         maskClosable={false}
       >
         <p className="text-sm text-gray-700 dark:text-gray-300">
-          Token for <strong>{revealedTokenAgentName}</strong>:
+          {t('verification.tokenFor', { name: revealedTokenAgentName })}
         </p>
         {renderCodeBlock(revealedToken ?? '')}
 
@@ -500,27 +488,24 @@ export const VerificationAgentsComponent = () => {
         {renderInstallAndLaunchSteps(revealedTokenAgentId, revealedToken ?? '')}
 
         <p className="mt-3 text-sm text-amber-600 dark:text-amber-400">
-          Shown once. Store it securely - you won&apos;t be able to retrieve it again.
+          {t('verification.tokenOnceHint')}
         </p>
       </Modal>
 
       <Modal
-        title="Install commands"
+        title={t('verification.installCommandsTitle')}
         open={viewingInstallAgent !== null}
         onCancel={closeViewingInstallModal}
         width={640}
         footer={
           <Button type="primary" onClick={closeViewingInstallModal}>
-            Close
+            {t('common.close')}
           </Button>
         }
       >
         <p className="text-sm text-gray-700 dark:text-gray-300">
-          Install commands for <strong>{viewingInstallAgent?.name}</strong>. Replace{' '}
-          <code className="rounded bg-gray-100 px-1 text-xs dark:bg-gray-700">
-            {TOKEN_PLACEHOLDER}
-          </code>{' '}
-          with the token you saved when you created or last rotated this agent.
+          {t('verification.installCommandsFor', { name: viewingInstallAgent?.name ?? '' })}.{' '}
+          {t('verification.installCommandsHint')}
         </p>
 
         {viewingInstallAgent && (

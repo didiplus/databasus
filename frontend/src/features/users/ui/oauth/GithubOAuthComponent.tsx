@@ -2,8 +2,11 @@ import { GithubOutlined } from '@ant-design/icons';
 import { Button, message } from 'antd';
 
 import { GITHUB_CLIENT_ID, getOAuthRedirectUri } from '../../../../constants';
+import { useTranslation } from '../../../../shared/i18n';
 
 export function GithubOAuthComponent() {
+  const { t } = useTranslation();
+
   if (!GITHUB_CLIENT_ID) {
     return null;
   }
@@ -25,14 +28,14 @@ export function GithubOAuthComponent() {
       new URL(githubAuthUrl);
       window.location.href = githubAuthUrl;
     } catch (error) {
-      message.error('Invalid OAuth configuration');
+      message.error(t('oauth.invalidConfig'));
       console.error('GitHub OAuth URL error:', error);
     }
   };
 
   return (
     <Button icon={<GithubOutlined />} onClick={handleGitHubLogin} className="w-full" size="large">
-      Continue with GitHub
+      {t('oauth.continueWithGithub')}
     </Button>
   );
 }

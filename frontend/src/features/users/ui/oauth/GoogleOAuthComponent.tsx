@@ -2,8 +2,11 @@ import { GoogleOutlined } from '@ant-design/icons';
 import { Button, message } from 'antd';
 
 import { GOOGLE_CLIENT_ID, getOAuthRedirectUri } from '../../../../constants';
+import { useTranslation } from '../../../../shared/i18n';
 
 export function GoogleOAuthComponent() {
+  const { t } = useTranslation();
+
   if (!GOOGLE_CLIENT_ID) {
     return null;
   }
@@ -26,14 +29,14 @@ export function GoogleOAuthComponent() {
       new URL(googleAuthUrl);
       window.location.href = googleAuthUrl;
     } catch (error) {
-      message.error('Invalid OAuth configuration');
+      message.error(t('oauth.invalidConfig'));
       console.error('Google OAuth URL error:', error);
     }
   };
 
   return (
     <Button icon={<GoogleOutlined />} onClick={handleGoogleLogin} className="w-full" size="large">
-      Continue with Google
+      {t('oauth.continueWithGoogle')}
     </Button>
   );
 }

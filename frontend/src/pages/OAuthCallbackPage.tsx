@@ -5,8 +5,10 @@ import { useNavigate, useSearchParams } from 'react-router';
 
 import { getOAuthRedirectUri } from '../constants';
 import { userApi } from '../entity/users';
+import { useTranslation } from '../shared/i18n';
 
 export function OAuthCallbackPage() {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [error, setError] = useState<string>('');
@@ -17,12 +19,12 @@ export function OAuthCallbackPage() {
       const state = searchParams.get('state');
 
       if (!code) {
-        setError('Authorization code not found');
+        setError(t('oauth.authCodeNotFound'));
         return;
       }
 
       if (!state) {
-        setError('OAuth state parameter missing');
+        setError(t('oauth.stateMissing'));
         return;
       }
 
@@ -34,25 +36,25 @@ export function OAuthCallbackPage() {
         } else if (state === 'google') {
           await userApi.handleGoogleOAuth({ code, redirectUri });
         } else {
-          setError('Invalid OAuth provider');
+          setError(t('oauth.invalidProvider'));
           return;
         }
 
         navigate('/');
       } catch (e) {
-        setError((e as Error).message || 'OAuth authentication failed');
+        setError((e as Error).message || t('oauth.authFailed'));
       }
     };
 
     handleOAuthCallback();
-  }, [searchParams, navigate]);
+  }, [searchParams, navigate, t]);
 
   return (
     <div className="flex h-screen w-screen flex-col items-center justify-center">
       {error ? (
         <div>
           <div className="mb-4 text-center text-xl font-semibold text-red-600">
-            Authentication Failed
+            {t('oauth.authFailedTitle')}
           </div>
           <div className="text-center text-sm text-gray-600">{error}</div>
           <div className="mt-6 text-center">
@@ -61,14 +63,14 @@ export function OAuthCallbackPage() {
               onClick={() => navigate('/')}
               className="cursor-pointer font-medium text-blue-600 hover:text-blue-700"
             >
-              Return to sign in
+              {t('oauth.returnToSignIn')}
             </button>
           </div>
         </div>
       ) : (
         <div className="flex flex-col items-center">
           <Spin indicator={<LoadingOutlined spin />} size="large" />
-          <div className="mt-4 text-gray-600">Completing authentication...</div>
+          <div className="mt-4 text-gray-600">{t('oauth.completing')}</div>
         </div>
       )}
     </div>

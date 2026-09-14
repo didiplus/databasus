@@ -7,6 +7,7 @@ import {
   PhysicalBackupType,
   type PhysicalBackupsFilters,
 } from '../../../../entity/backups/physical';
+import { useTranslation } from '../../../../shared/i18n';
 import { PHYSICAL_BACKUP_STATUS_LABELS } from '../model/physicalBackupStatus';
 
 interface Props {
@@ -14,18 +15,20 @@ interface Props {
   onFiltersChange: (filters: PhysicalBackupsFilters) => void;
 }
 
-const typeOptions = [
-  { label: 'Full', value: PhysicalBackupType.FULL },
-  { label: 'Incremental', value: PhysicalBackupType.INCREMENTAL },
-  { label: 'WAL', value: PhysicalBackupType.WAL },
-];
-
-const statusOptions = Object.values(PhysicalBackupStatus).map((status) => ({
-  label: PHYSICAL_BACKUP_STATUS_LABELS[status],
-  value: status,
-}));
-
 export const PhysicalBackupsFiltersPanelComponent = ({ filters, onFiltersChange }: Props) => {
+  const { t } = useTranslation();
+
+  const typeOptions = [
+    { label: t('backups.filterFull'), value: PhysicalBackupType.FULL },
+    { label: t('backups.filterIncremental'), value: PhysicalBackupType.INCREMENTAL },
+    { label: t('backups.filterWal'), value: PhysicalBackupType.WAL },
+  ];
+
+  const statusOptions = Object.values(PhysicalBackupStatus).map((status) => ({
+    label: PHYSICAL_BACKUP_STATUS_LABELS[status],
+    value: status,
+  }));
+
   const handleTypeChange = (types: PhysicalBackupType[]) => {
     onFiltersChange({ ...filters, types: types.length > 0 ? types : undefined });
   };
@@ -44,13 +47,15 @@ export const PhysicalBackupsFiltersPanelComponent = ({ filters, onFiltersChange 
   return (
     <div className="flex flex-col gap-3">
       <div className="flex items-center gap-2">
-        <span className="min-w-[90px] text-sm text-gray-500 dark:text-gray-400">Type</span>
+        <span className="min-w-[90px] text-sm text-gray-500 dark:text-gray-400">
+          {t('common.type')}
+        </span>
         <Select
           mode="multiple"
           value={filters.types ?? []}
           onChange={handleTypeChange}
           options={typeOptions}
-          placeholder="All types"
+          placeholder={t('backups.allTypes')}
           size="small"
           variant="filled"
           className="w-[200px] [&_.ant-select-selector]:!rounded-md"
@@ -59,13 +64,15 @@ export const PhysicalBackupsFiltersPanelComponent = ({ filters, onFiltersChange 
       </div>
 
       <div className="flex items-center gap-2">
-        <span className="min-w-[90px] text-sm text-gray-500 dark:text-gray-400">Status</span>
+        <span className="min-w-[90px] text-sm text-gray-500 dark:text-gray-400">
+          {t('common.status')}
+        </span>
         <Select
           mode="multiple"
           value={filters.statuses ?? []}
           onChange={handleStatusChange}
           options={statusOptions}
-          placeholder="All statuses"
+          placeholder={t('backups.allStatuses')}
           size="small"
           variant="filled"
           className="w-[200px] [&_.ant-select-selector]:!rounded-md"
@@ -74,7 +81,9 @@ export const PhysicalBackupsFiltersPanelComponent = ({ filters, onFiltersChange 
       </div>
 
       <div className="flex items-center gap-2">
-        <span className="min-w-[90px] text-sm text-gray-500 dark:text-gray-400">Before</span>
+        <span className="min-w-[90px] text-sm text-gray-500 dark:text-gray-400">
+          {t('backups.before')}
+        </span>
         <DatePicker
           value={filters.beforeDate ? dayjs(filters.beforeDate) : null}
           onChange={handleBeforeDateChange}

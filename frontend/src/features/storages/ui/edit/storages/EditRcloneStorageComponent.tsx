@@ -2,6 +2,7 @@ import { InfoCircleOutlined } from '@ant-design/icons';
 import { Input, Tooltip } from 'antd';
 
 import type { Storage } from '../../../../../entity/storages';
+import { useTranslation } from '../../../../../shared/i18n';
 
 interface Props {
   storage: Storage;
@@ -10,10 +11,12 @@ interface Props {
 }
 
 export function EditRcloneStorageComponent({ storage, setStorage, setUnsaved }: Props) {
+  const { t } = useTranslation();
+
   return (
     <>
       <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-start">
-        <div className="mb-1 min-w-[110px] pt-1 sm:mb-0">Config</div>
+        <div className="mb-1 min-w-[110px] pt-1 sm:mb-0">{t('storages.config')}</div>
         <div className="flex w-full flex-col">
           <div className="flex items-start">
             <Input.TextArea
@@ -43,7 +46,7 @@ region = us-east-1`}
 
             <Tooltip
               className="cursor-pointer"
-              title="Paste your rclone.conf content here. You can get it by running 'rclone config file' and copying the contents. This config supports 70+ cloud storage providers."
+              title={t('storages.rcloneConfigTooltip')}
             >
               <InfoCircleOutlined className="mt-2 ml-2" style={{ color: 'gray' }} />
             </Tooltip>
@@ -56,8 +59,7 @@ region = us-east-1`}
           <div className="hidden min-w-[110px] sm:block" />
 
           <div className="max-w-[300px] text-xs text-gray-400">
-            *content is hidden to not expose sensitive data. If you want to update existing config,
-            put a new one here
+            {t('storages.rcloneContentHidden')}
           </div>
         </div>
       )}
@@ -67,13 +69,13 @@ region = us-east-1`}
 
         <div className="text-xs text-blue-600">
           <a href="https://rclone.org/docs/" target="_blank" rel="noreferrer">
-            Rclone documentation
+            {t('storages.rcloneDocumentation')}
           </a>
         </div>
       </div>
 
       <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-        <div className="mb-1 min-w-[110px] sm:mb-0">Remote path</div>
+        <div className="mb-1 min-w-[110px] sm:mb-0">{t('storages.remotePath')}</div>
         <div className="flex items-center">
           <Input
             value={storage?.rcloneStorage?.remotePath || ''}
@@ -96,7 +98,7 @@ region = us-east-1`}
 
           <Tooltip
             className="cursor-pointer"
-            title="Optional path prefix on the remote where backups will be stored (e.g., '/backups' or 'my-folder/backups')"
+            title={t('storages.rcloneRemotePathTooltip')}
           >
             <InfoCircleOutlined className="ml-2" style={{ color: 'gray' }} />
           </Tooltip>

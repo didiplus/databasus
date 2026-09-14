@@ -23,6 +23,7 @@ import {
   physicalBackupsApi,
 } from '../../../../entity/backups/physical';
 import { type Database, PhysicalDatabaseBackupType } from '../../../../entity/databases';
+import { useTranslation } from '../../../../shared/i18n';
 import { usePersistentState } from '../../../../shared/hooks';
 import { formatDuration } from '../../../../shared/lib';
 import { getUserTimeFormat } from '../../../../shared/time';
@@ -43,6 +44,8 @@ interface Props {
   scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
 }
 
+type TranslationFn = (key: string, params?: Record<string, string | number>) => string;
+
 const formatSize = (sizeMb: number): string => {
   if (sizeMb >= 1024) {
     const sizeGb = sizeMb / 1024;
@@ -55,6 +58,7 @@ const formatSize = (sizeMb: number): string => {
 const renderStatusBadge = (
   backup: PhysicalBackupListItem,
   onShowError: (backup: PhysicalBackupListItem) => void,
+  t: TranslationFn,
 ): JSX.Element => {
   const badgeStyle = PHYSICAL_BACKUP_STATUS_BADGE_STYLES[backup.status];
   const label = PHYSICAL_BACKUP_STATUS_LABELS[backup.status];
@@ -77,7 +81,7 @@ const renderStatusBadge = (
   }
 
   return (
-    <Tooltip title="Click to see error details">
+    <Tooltip title={t('backups.clickErrorDetails')}>
       <span className="cursor-pointer" onClick={() => onShowError(backup)}>
         {badge}
       </span>
@@ -85,11 +89,11 @@ const renderStatusBadge = (
   );
 };
 
-const renderTypeBadge = (type: PhysicalBackupType): JSX.Element => {
+const renderTypeBadge = (type: PhysicalBackupType, t: TranslationFn): JSX.Element => {
   if (type === PhysicalBackupType.FULL) {
     return (
       <span className="inline-flex items-center rounded bg-indigo-500/15 px-2 py-0.5 text-xs font-semibold text-indigo-700 ring-1 ring-indigo-500/40 ring-inset dark:text-indigo-300">
-        Full
+        {t('backups.filterFull')}
       </span>
     );
   }
@@ -97,14 +101,14 @@ const renderTypeBadge = (type: PhysicalBackupType): JSX.Element => {
   if (type === PhysicalBackupType.WAL) {
     return (
       <span className="inline-flex items-center rounded bg-slate-400/10 px-2 py-0.5 text-xs font-medium text-slate-600 ring-1 ring-slate-400/30 ring-inset dark:text-slate-300">
-        WAL
+        {t('backups.filterWal')}
       </span>
     );
   }
 
   return (
     <span className="inline-flex items-center rounded bg-indigo-400/10 px-2 py-0.5 text-xs font-medium text-indigo-600 ring-1 ring-indigo-400/30 ring-inset dark:text-indigo-300">
-      Incremental
+      {t('backups.filterIncremental')}
     </span>
   );
 };
@@ -115,6 +119,7 @@ export const PhysicalBackupsComponent = ({
   isDirectlyUnderTab,
   scrollContainerRef,
 }: Props): JSX.Element => {
+  const { t } = useTranslation();
   const { message } = App.useApp();
 
   const [isBackupsLoading, setIsBackupsLoading] = useState(false);
@@ -319,7 +324,6 @@ export const PhysicalBackupsComponent = ({
 
   const renderActions = (record: PhysicalBackupListItem): JSX.Element => (
     <div className="flex gap-2 text-lg">
-      {/* WAL segments have no standalone backup identity - they are not restored or deleted on their own (use point-in-time restore instead). */}
       {record.type === PhysicalBackupType.WAL ? null : (
         <>
           {record.status === PhysicalBackupStatus.IN_PROGRESS && isCanManageDBs && (
@@ -327,7 +331,7 @@ export const PhysicalBackupsComponent = ({
               {cancellingBackupId === record.id ? (
                 <SyncOutlined spin />
               ) : (
-                <Tooltip title="Cancel backup">
+                <Tooltip title={t('backups.cancelBackup')}>
                   <CloseCircleOutlined
                     className="cursor-pointer"
                     onClick={() => {
@@ -343,7 +347,7 @@ export const PhysicalBackupsComponent = ({
 
           {record.status === PhysicalBackupStatus.COMPLETED && (
             <>
-              <Tooltip title="Restore from this backup">
+              <Tooltip title={t('backups.restoreFromThisBackup')}>
                 <CloudUploadOutlined
                   className="cursor-pointer"
                   onClick={() => setRestoringBackup(record)}
@@ -355,7 +359,7 @@ export const PhysicalBackupsComponent = ({
                 (deletingBackupId === record.id ? (
                   <SyncOutlined spin />
                 ) : (
-                  <Tooltip title="Delete backup">
+                  <Tooltip title={t('backups.deleteBackup')}>
                     <DeleteOutlined
                       className="cursor-pointer"
                       onClick={() => {
@@ -379,7 +383,6 @@ export const PhysicalBackupsComponent = ({
     }
 
     if (record.status === PhysicalBackupStatus.IN_PROGRESS) {
-      // Live elapsed time; the 1s list refresh re-renders this and makes it tick.
       return formatDuration(dayjs().diff(dayjs(record.createdAt)));
     }
 
@@ -388,33 +391,33 @@ export const PhysicalBackupsComponent = ({
 
   const columns: ColumnsType<PhysicalBackupListItem> = [
     {
-      title: 'Type',
+      title: t('backups.columnType'),
       dataIndex: 'type',
       key: 'type',
-      render: (type: PhysicalBackupType) => renderTypeBadge(type),
+      render: (type: PhysicalBackupType) => renderTypeBadge(type, t),
     },
     {
-      title: 'Status',
+      title: t('backups.columnStatus'),
       dataIndex: 'status',
       key: 'status',
       render: (_status: PhysicalBackupStatus, record: PhysicalBackupListItem) =>
-        renderStatusBadge(record, setShowingBackupError),
+        renderStatusBadge(record, setShowingBackupError, t),
     },
     {
-      title: 'Size',
+      title: t('backups.columnSize'),
       dataIndex: 'sizeMb',
       key: 'sizeMb',
       width: 110,
       render: (sizeMb: number) => formatSize(sizeMb),
     },
     {
-      title: 'Duration',
+      title: t('backups.columnDuration'),
       key: 'duration',
       width: 150,
       render: (_, record: PhysicalBackupListItem) => renderDuration(record),
     },
     {
-      title: 'Created',
+      title: t('backups.columnCreated'),
       dataIndex: 'createdAt',
       key: 'createdAt',
       render: (createdAt: Date) => (
@@ -430,7 +433,7 @@ export const PhysicalBackupsComponent = ({
       defaultSortOrder: 'descend',
     },
     {
-      title: 'Actions',
+      title: t('backups.columnActions'),
       key: 'actions',
       render: (_, record: PhysicalBackupListItem) => renderActions(record),
     },
@@ -438,10 +441,10 @@ export const PhysicalBackupsComponent = ({
 
   const backupNowMenu: MenuProps = {
     items: [
-      { key: 'full', label: 'Full backup' },
+      { key: 'full', label: t('backups.fullBackup') },
       {
         key: 'incremental',
-        label: 'Incremental backup',
+        label: t('backups.incrementalBackup'),
         disabled: !isIncrementalAllowed,
       },
     ],
@@ -466,7 +469,7 @@ export const PhysicalBackupsComponent = ({
       className={`w-full bg-white p-3 shadow md:p-5 dark:bg-gray-800 ${isDirectlyUnderTab ? 'rounded-tr-md rounded-br-md rounded-bl-md' : 'rounded-md'}`}
     >
       <div className="flex items-center gap-2">
-        <h2 className="text-lg font-bold md:text-xl dark:text-white">Backups</h2>
+        <h2 className="text-lg font-bold md:text-xl dark:text-white">{t('backups.title')}</h2>
         <div className="relative">
           {isFilterPanelVisible ? (
             <FilterFilled
@@ -492,13 +495,11 @@ export const PhysicalBackupsComponent = ({
       )}
 
       {!isBackupConfigLoading && !backupConfig?.isBackupsEnabled && (
-        <div className="text-sm text-red-600">
-          Scheduled backups are disabled (you can enable it back in the backup configuration)
-        </div>
+        <div className="text-sm text-red-600">{t('backups.scheduledBackupsDisabled')}</div>
       )}
 
       <div className="mt-3 text-sm text-gray-600 dark:text-gray-400">
-        Total usage: {formatSize(totalUsageMb)}
+        {t('backups.totalUsage')} {formatSize(totalUsageMb)}
       </div>
 
       <div className="mt-4 flex items-center">
@@ -511,11 +512,11 @@ export const PhysicalBackupsComponent = ({
           menu={backupNowMenu}
           onClick={() => triggerBackup('auto')}
         >
-          Back up now
+          {t('backups.backUpNow')}
         </Dropdown.Button>
 
         <Button className="ml-2" onClick={() => setIsPitrModalOpen(true)}>
-          Restore
+          {t('backups.restore')}
         </Button>
       </div>
 
@@ -536,7 +537,9 @@ export const PhysicalBackupsComponent = ({
                   <div className="space-y-3">
                     <div className="flex items-start justify-between">
                       <div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">Created</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          {t('backups.columnCreated')}
+                        </div>
                         <div className="text-sm font-medium">
                           {dayjs.utc(backup.createdAt).local().format(getUserTimeFormat().format)}
                         </div>
@@ -544,20 +547,26 @@ export const PhysicalBackupsComponent = ({
                           ({dayjs.utc(backup.createdAt).local().fromNow()})
                         </div>
                       </div>
-                      <div>{renderStatusBadge(backup, setShowingBackupError)}</div>
+                      <div>{renderStatusBadge(backup, setShowingBackupError, t)}</div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
                       <div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">Type</div>
-                        <div className="text-sm font-medium">{renderTypeBadge(backup.type)}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          {t('backups.columnType')}
+                        </div>
+                        <div className="text-sm font-medium">{renderTypeBadge(backup.type, t)}</div>
                       </div>
                       <div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">Size</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          {t('backups.columnSize')}
+                        </div>
                         <div className="text-sm font-medium">{formatSize(backup.sizeMb)}</div>
                       </div>
                       <div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">Duration</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          {t('backups.columnDuration')}
+                        </div>
                         <div className="text-sm font-medium">{renderDuration(backup)}</div>
                       </div>
                     </div>
@@ -578,11 +587,13 @@ export const PhysicalBackupsComponent = ({
           )}
           {!hasMore && backups.length > 0 && (
             <div className="mt-3 text-center text-sm text-gray-500 dark:text-gray-400">
-              All backups loaded ({totalBackups} total)
+              {t('backups.allBackupsLoaded', { total: totalBackups })}
             </div>
           )}
           {!isBackupsLoading && backups.length === 0 && (
-            <div className="py-8 text-center text-gray-500 dark:text-gray-400">No backups yet</div>
+            <div className="py-8 text-center text-gray-500 dark:text-gray-400">
+              {t('backups.noBackupsYet')}
+            </div>
           )}
         </div>
 
@@ -604,7 +615,7 @@ export const PhysicalBackupsComponent = ({
           )}
           {!hasMore && backups.length > 0 && (
             <div className="mt-2 text-center text-gray-500 dark:text-gray-400">
-              All backups loaded ({totalBackups} total)
+              {t('backups.allBackupsLoaded', { total: totalBackups })}
             </div>
           )}
         </div>
@@ -616,11 +627,11 @@ export const PhysicalBackupsComponent = ({
           onDecline={() => setDeleteConfirmationBackup(undefined)}
           description={
             deleteConfirmationBackup.type === PhysicalBackupType.FULL
-              ? 'Deleting this full backup removes its entire chain (all incrementals that depend on it). This cannot be undone. Continue?'
-              : 'Deleting this incremental backup removes all later incrementals that depend on it. This cannot be undone. Continue?'
+              ? t('backups.deleteFullConfirm')
+              : t('backups.deleteIncrementalConfirm')
           }
           actionButtonColor="red"
-          actionText="Delete"
+          actionText={t('common.delete')}
         />
       )}
 
@@ -629,7 +640,7 @@ export const PhysicalBackupsComponent = ({
           width={640}
           open={!!restoringBackup}
           onCancel={() => setRestoringBackup(undefined)}
-          title="Restore from backup"
+          title={t('backups.restoreFromBackup')}
           footer={null}
           maskClosable={false}
         >
@@ -646,7 +657,7 @@ export const PhysicalBackupsComponent = ({
           width={640}
           open={isPitrModalOpen}
           onCancel={() => setIsPitrModalOpen(false)}
-          title="Point-in-time restore"
+          title={t('backups.pointInTimeRestore')}
           footer={null}
           maskClosable={false}
         >
@@ -656,7 +667,7 @@ export const PhysicalBackupsComponent = ({
 
       {showingBackupError && (
         <Modal
-          title="Backup error details"
+          title={t('backups.errorTitle')}
           open={!!showingBackupError}
           onCancel={() => setShowingBackupError(undefined)}
           maskClosable={false}

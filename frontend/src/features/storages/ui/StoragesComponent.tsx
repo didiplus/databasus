@@ -5,6 +5,7 @@ import { storageApi } from '../../../entity/storages';
 import type { Storage } from '../../../entity/storages';
 import type { WorkspaceResponse } from '../../../entity/workspaces';
 import { useIsMobile } from '../../../shared/hooks';
+import { useTranslation } from '../../../shared/i18n';
 import { StorageCardComponent } from './StorageCardComponent';
 import { StorageComponent } from './StorageComponent';
 import { EditStorageComponent } from './edit/EditStorageComponent';
@@ -18,6 +19,7 @@ interface Props {
 const SELECTED_STORAGE_STORAGE_KEY = 'selectedStorageId';
 
 export const StoragesComponent = ({ contentHeight, workspace, isCanManageStorages }: Props) => {
+  const { t } = useTranslation();
   const isMobile = useIsMobile();
   const [isLoading, setIsLoading] = useState(true);
   const [storages, setStorages] = useState<Storage[]>([]);
@@ -75,7 +77,7 @@ export const StoragesComponent = ({ contentHeight, workspace, isCanManageStorage
 
   const addStorageButton = (
     <Button type="primary" className="mb-2 w-full" onClick={() => setIsShowAddStorage(true)}>
-      Add storage
+      {t('storages.addStorage')}
     </Button>
   );
 
@@ -105,7 +107,7 @@ export const StoragesComponent = ({ contentHeight, workspace, isCanManageStorage
             {storages.length < 5 && isCanManageStorages && addStorageButton}
 
             <div className="mx-3 text-center text-xs text-gray-500 dark:text-gray-400">
-              Storage - is a place where backups will be stored (local disk, S3, etc.)
+              {t('storages.description')}
             </div>
           </div>
         )}
@@ -119,7 +121,7 @@ export const StoragesComponent = ({ contentHeight, workspace, isCanManageStorage
                   onClick={() => updateSelectedStorageId(undefined)}
                   className="w-full"
                 >
-                  ← Back to storages
+                  {t('storages.backToStorages')}
                 </Button>
               </div>
             )}
@@ -151,14 +153,14 @@ export const StoragesComponent = ({ contentHeight, workspace, isCanManageStorage
 
       {isShowAddStorage && (
         <Modal
-          title="Add storage"
+          title={t('storages.addTitle')}
           footer={<div />}
           open={isShowAddStorage}
           onCancel={() => setIsShowAddStorage(false)}
           maskClosable={false}
         >
           <div className="my-3 max-w-[250px] text-gray-500 dark:text-gray-400">
-            Storage - is a place where backups will be stored (local disk, S3, etc.)
+            {t('storages.description')}
           </div>
 
           <EditStorageComponent

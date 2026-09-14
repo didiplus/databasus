@@ -38,6 +38,7 @@ import type {
 } from '../../../entity/workspaces';
 import { AddMemberStatusEnum, workspaceMembershipApi } from '../../../entity/workspaces';
 import { useIsMobile } from '../../../shared/hooks';
+import { useTranslation } from '../../../shared/i18n';
 import { StringUtils } from '../../../shared/lib';
 import { getUserShortTimeFormat } from '../../../shared/time';
 
@@ -48,6 +49,7 @@ interface Props {
 
 export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props) {
   const { message } = App.useApp();
+  const { t } = useTranslation();
   const isMobile = useIsMobile();
 
   const [members, setMembers] = useState<WorkspaceMemberResponse[]>([]);
@@ -106,7 +108,7 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
       const errorMessage =
         error instanceof Error
           ? StringUtils.capitalizeFirstLetter(error.message)
-          : 'Failed to load members';
+          : t('workspace.membershipFailedLoad');
       message.error(errorMessage);
     } finally {
       setIsLoadingMembers(false);
@@ -128,7 +130,7 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
       const errorMessage =
         error instanceof Error
           ? StringUtils.capitalizeFirstLetter(error.message)
-          : 'Failed to search users';
+          : t('workspace.failedSearchUsers');
       message.error(errorMessage);
       setUserSearchResults([]);
     } finally {
@@ -149,7 +151,7 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
   const handleAddMember = async () => {
     if (!addMemberForm.email.trim()) {
       setAddMemberEmailError(true);
-      message.error('Email is required');
+      message.error(t('workspace.emailRequired'));
       return;
     }
     setAddMemberEmailError(false);
@@ -170,7 +172,7 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
       setIsAddMemberModalOpen(false);
 
       if (response.status === AddMemberStatusEnum.ADDED) {
-        message.success('Member added successfully');
+        message.success(t('workspace.memberAdded'));
         loadMembers();
       } else if (response.status === AddMemberStatusEnum.INVITED) {
         setInvitedEmail(emailToRemember);
@@ -181,7 +183,7 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
       const errorMessage =
         error instanceof Error
           ? StringUtils.capitalizeFirstLetter(error.message)
-          : 'Failed to add member';
+          : t('workspace.failedAddMember');
       message.error(errorMessage);
     } finally {
       setIsAddingMember(false);
@@ -200,12 +202,12 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
         prev.map((member) => (member.userId === userId ? { ...member, role: newRole } : member)),
       );
 
-      message.success('Member role updated successfully');
+      message.success(t('workspace.memberRoleUpdated'));
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error
           ? StringUtils.capitalizeFirstLetter(error.message)
-          : 'Failed to change member role';
+          : t('workspace.failedChangeMemberRole');
       message.error(errorMessage);
     } finally {
       setChangingRoleFor(null);
@@ -219,12 +221,12 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
     try {
       await workspaceMembershipApi.removeMember(workspaceResponse.id, userId);
       setMembers((prev) => prev.filter((member) => member.userId !== userId));
-      message.success(`Member "${memberEmail}" removed successfully`);
+      message.success(t('workspace.memberRemoved', { email: memberEmail }));
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error
           ? StringUtils.capitalizeFirstLetter(error.message)
-          : 'Failed to remove member';
+          : t('workspace.failedRemoveMember');
       message.error(errorMessage);
     } finally {
       setRemovingMembers((prev) => {
@@ -238,7 +240,7 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
   const handleTransferOwnership = async () => {
     if (!transferForm.selectedMemberId) {
       setTransferMemberError(true);
-      message.error('Please select a member to transfer ownership to');
+      message.error(t('workspace.selectMemberTransfer'));
       return;
     }
 
@@ -246,7 +248,7 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
       (member) => member.userId === transferForm.selectedMemberId,
     );
     if (!selectedMember) {
-      message.error('Selected member not found');
+      message.error(t('workspace.selectedMemberNotFound'));
       return;
     }
 
@@ -261,13 +263,13 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
 
       setTransferForm({ selectedMemberId: '' });
       setIsTransferOwnershipModalOpen(false);
-      message.success('Ownership transferred successfully');
+      message.success(t('workspace.ownershipTransferred'));
       loadMembers();
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error
           ? StringUtils.capitalizeFirstLetter(error.message)
-          : 'Failed to transfer ownership';
+          : t('workspace.failedTransferOwnership');
       message.error(errorMessage);
     } finally {
       setIsTransferringOwnership(false);
@@ -292,13 +294,13 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
   const getRoleDisplayText = (role: WorkspaceRole): string => {
     switch (role) {
       case WorkspaceRole.OWNER:
-        return 'Owner';
+        return t('common.owner');
       case WorkspaceRole.ADMIN:
-        return 'Admin';
+        return t('common.admin');
       case WorkspaceRole.MEMBER:
-        return 'Member';
+        return t('common.member');
       case WorkspaceRole.VIEWER:
-        return 'Viewer';
+        return t('common.viewer');
       default:
         return role;
     }
@@ -310,7 +312,7 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
 
   const columns: ColumnsType<WorkspaceMemberResponse> = [
     {
-      title: 'Member',
+      title: t('common.member'),
       key: 'member',
       width: 300,
       render: (_, record: WorkspaceMemberResponse) => (
@@ -324,7 +326,7 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
       ),
     },
     {
-      title: 'Role',
+      title: t('common.role'),
       dataIndex: 'role',
       key: 'role',
       width: 150,
@@ -341,9 +343,9 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
               size="small"
               style={{ width: 110 }}
               options={[
-                { label: 'Admin', value: WorkspaceRole.ADMIN },
-                { label: 'Member', value: WorkspaceRole.MEMBER },
-                { label: 'Viewer', value: WorkspaceRole.VIEWER },
+                { label: t('common.admin'), value: WorkspaceRole.ADMIN },
+                { label: t('common.member'), value: WorkspaceRole.MEMBER },
+                { label: t('common.viewer'), value: WorkspaceRole.VIEWER },
               ]}
             />
           );
@@ -352,7 +354,7 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
       },
     },
     {
-      title: 'Joined',
+      title: t('common.joined'),
       dataIndex: 'createdAt',
       key: 'createdAt',
       width: 200,
@@ -368,7 +370,7 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
       },
     },
     {
-      title: 'Actions',
+      title: t('common.actions'),
       key: 'actions',
       width: 120,
       render: (_, record: WorkspaceMemberResponse) => {
@@ -378,13 +380,13 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
 
         return (
           <div className="flex items-center space-x-2">
-            <Tooltip title="Remove member">
+            <Tooltip title={t('workspace.removeMember')}>
               <Popconfirm
-                title="Remove member"
-                description={`Are you sure you want to remove "${record.email}" from this workspace?`}
+                title={t('workspace.removeMember')}
+                description={t('workspace.removeConfirm', { email: record.email })}
                 onConfirm={() => handleRemoveMember(record.userId, record.email)}
-                okText="Remove"
-                cancelText="Cancel"
+                okText={t('common.remove')}
+                cancelText={t('common.cancel')}
                 okButtonProps={{ danger: true }}
               >
                 <Button
@@ -423,11 +425,11 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
           </div>
           {canManageMembers && member.role !== WorkspaceRole.OWNER && !isCurrentUser && (
             <Popconfirm
-              title="Remove member"
-              description={`Are you sure you want to remove "${member.email}" from this workspace?`}
+              title={t('workspace.removeMember')}
+              description={t('workspace.removeConfirm', { email: member.email })}
               onConfirm={() => handleRemoveMember(member.userId, member.email)}
-              okText="Remove"
-              cancelText="Cancel"
+              okText={t('common.remove')}
+              cancelText={t('common.cancel')}
               okButtonProps={{ danger: true }}
             >
               <Button
@@ -444,7 +446,7 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
 
         <div className="mt-3 flex items-center justify-between">
           <div>
-            <div className="text-xs text-gray-500 dark:text-gray-400">Role</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">{t('common.role')}</div>
             {canManageMembers && member.role !== WorkspaceRole.OWNER && !isCurrentUser ? (
               <Select
                 value={member.role}
@@ -454,9 +456,9 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
                 size="small"
                 style={{ width: 110 }}
                 options={[
-                  { label: 'Admin', value: WorkspaceRole.ADMIN },
-                  { label: 'Member', value: WorkspaceRole.MEMBER },
-                  { label: 'Viewer', value: WorkspaceRole.VIEWER },
+                  { label: t('common.admin'), value: WorkspaceRole.ADMIN },
+                  { label: t('common.member'), value: WorkspaceRole.MEMBER },
+                  { label: t('common.viewer'), value: WorkspaceRole.VIEWER },
                 ]}
               />
             ) : (
@@ -464,7 +466,7 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
             )}
           </div>
           <div className="text-right">
-            <div className="text-xs text-gray-500 dark:text-gray-400">Joined</div>
+            <div className="text-xs text-gray-500 dark:text-gray-400">{t('common.joined')}</div>
             <div className="text-sm text-gray-600 dark:text-gray-300">
               {date.format(timeFormat.format)}
             </div>
@@ -478,7 +480,9 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
   return (
     <div className="max-w-[850px]">
       <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-        <h2 className="text-xl font-bold text-gray-900 dark:text-white">Users</h2>
+        <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+          {t('workspace.usersTitle')}
+        </h2>
 
         <div className="flex flex-col gap-2 md:flex-row md:space-x-2">
           {canTransferOwnership && (
@@ -488,7 +492,7 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
               disabled={isLoadingMembers || eligibleMembers.length === 0}
               className="w-full md:w-auto"
             >
-              Transfer ownership
+              {t('workspace.transferOwnership')}
             </Button>
           )}
           {canManageMembers && (
@@ -499,7 +503,7 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
               disabled={isLoadingMembers}
               className="w-full border-blue-600 bg-blue-600 hover:border-blue-700 hover:bg-blue-700 md:w-auto"
             >
-              Add member
+              {t('workspace.addMember')}
             </Button>
           )}
         </div>
@@ -513,16 +517,16 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
         <div>
           <div className="mb-4 text-sm text-gray-500 dark:text-gray-400">
             {members.length === 0
-              ? 'No members found'
-              : `${members.length} member${members.length !== 1 ? 's' : ''}`}
+              ? t('workspace.noMembersFound')
+              : t('workspace.memberCount', { count: members.length })}
           </div>
 
           {isMobile ? (
             members.length === 0 ? (
               <div className="py-8 text-center text-gray-500 dark:text-gray-400">
-                <div className="mb-2">No members found</div>
+                <div className="mb-2">{t('workspace.noMembersFound')}</div>
                 {canManageMembers && (
-                  <div className="text-sm">Click &quot;Add member&quot; to get started</div>
+                  <div className="text-sm">{t('workspace.clickToAdd')}</div>
                 )}
               </div>
             ) : (
@@ -538,9 +542,9 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
               locale={{
                 emptyText: (
                   <div className="py-8 text-center text-gray-500 dark:text-gray-400">
-                    <div className="mb-2">No members found</div>
+                    <div className="mb-2">{t('workspace.noMembersFound')}</div>
                     {canManageMembers && (
-                      <div className="text-sm">Click &quot;Add member&quot; to get started</div>
+                      <div className="text-sm">{t('workspace.clickToAdd')}</div>
                     )}
                   </div>
                 ),
@@ -552,7 +556,7 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
 
       {/* Add Member Modal */}
       <Modal
-        title="Add member"
+        title={t('workspace.addMember')}
         open={isAddMemberModalOpen}
         onOk={handleAddMember}
         onCancel={() => {
@@ -563,15 +567,17 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
           setUserSearchResults([]);
         }}
         confirmLoading={isAddingMember}
-        okText="Add member"
-        cancelText="Cancel"
+        okText={t('workspace.addMember')}
+        cancelText={t('common.cancel')}
         okButtonProps={{
           className: 'border-blue-600 bg-blue-600 hover:border-blue-700 hover:bg-blue-700',
         }}
       >
         <div className="py-4">
           <div className="mb-4">
-            <div className="mb-2 font-medium text-gray-900 dark:text-white">Email address</div>
+            <div className="mb-2 font-medium text-gray-900 dark:text-white">
+              {t('workspace.emailAddress')}
+            </div>
             {user.role === UserRole.ADMIN ? (
               <AutoComplete
                 value={addMemberForm.email}
@@ -592,7 +598,7 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
                 onFocus={() => {
                   searchUsers('');
                 }}
-                placeholder="Enter email address"
+                placeholder={t('workspace.enterEmailAddress')}
                 status={addMemberEmailError ? 'error' : undefined}
                 options={userSearchResults.map((user) => ({
                   value: user.email,
@@ -617,26 +623,25 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
                     email: e.target.value.toLowerCase().trim(),
                   });
                 }}
-                placeholder="Enter email address"
+                placeholder={t('workspace.enterEmailAddress')}
                 status={addMemberEmailError ? 'error' : undefined}
               />
             )}
             <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-              If the user exists, they will be added directly. Otherwise, an invitation will be
-              sent.
+              {t('workspace.inviteHint')}
             </div>
           </div>
 
           <div className="mb-4">
-            <div className="mb-2 font-medium text-gray-900 dark:text-white">Role</div>
+            <div className="mb-2 font-medium text-gray-900 dark:text-white">{t('common.role')}</div>
             <Select
               value={addMemberForm.role}
               onChange={(role) => setAddMemberForm({ ...addMemberForm, role })}
               style={{ width: '100%' }}
               options={[
-                { label: 'Viewer', value: WorkspaceRole.VIEWER },
-                { label: 'Member', value: WorkspaceRole.MEMBER },
-                { label: 'Admin', value: WorkspaceRole.ADMIN },
+                { label: t('common.viewer'), value: WorkspaceRole.VIEWER },
+                { label: t('common.member'), value: WorkspaceRole.MEMBER },
+                { label: t('common.admin'), value: WorkspaceRole.ADMIN },
               ]}
             />
           </div>
@@ -645,11 +650,11 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
 
       {/* Invite Dialog */}
       <Modal
-        title="User invited"
+        title={t('workspace.userInvitedTitle')}
         open={isInviteDialogOpen}
         onOk={() => setIsInviteDialogOpen(false)}
         onCancel={() => setIsInviteDialogOpen(false)}
-        okText="OK"
+        okText={t('common.ok')}
         cancelButtonProps={{ style: { display: 'none' } }}
         okButtonProps={{
           className: 'border-blue-600 bg-blue-600 hover:border-blue-700 hover:bg-blue-700',
@@ -660,12 +665,10 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
             <UserAddOutlined className="mr-3 text-2xl text-blue-600 dark:text-blue-400" />
             <div>
               <div className="font-medium text-gray-900 dark:text-white">
-                Invitation sent to {invitedEmail}
+                {t('workspace.invitationSent', { email: invitedEmail })}
               </div>
               <div className="mt-1 text-sm text-gray-600 dark:text-gray-300">
-                The user is not present in the system yet, but has been invited to the workspace.
-                After the user signs up via specified email, they will automatically become a member
-                of the workspace.
+                {t('workspace.invitationDescription')}
               </div>
             </div>
           </div>
@@ -674,7 +677,7 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
 
       {/* Transfer Ownership Modal */}
       <Modal
-        title="Transfer workspace ownership"
+        title={t('workspace.transferTitle')}
         open={isTransferOwnershipModalOpen}
         onOk={handleTransferOwnership}
         onCancel={() => {
@@ -683,8 +686,8 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
           setTransferMemberError(false);
         }}
         confirmLoading={isTransferringOwnership}
-        okText="Transfer ownership"
-        cancelText="Cancel"
+        okText={t('workspace.transferOwnership')}
+        cancelText={t('common.cancel')}
         okButtonProps={{
           danger: true,
           disabled: eligibleMembers.length === 0,
@@ -693,28 +696,28 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
         <div className="py-4">
           <div className="mb-4 rounded-md bg-yellow-50 p-3 dark:bg-yellow-900/30">
             <div className="text-sm text-yellow-800 dark:text-yellow-200">
-              <strong>Warning:</strong> This action cannot be undone. You will lose ownership of
-              this workspace and the new owner will have full control.
+              <strong>{t('workspace.warning')}</strong> {t('workspace.transferWarning')}
             </div>
           </div>
 
           {eligibleMembers.length === 0 ? (
             <div className="rounded-md bg-gray-50 p-4 text-center dark:bg-gray-700">
               <div className="text-sm text-gray-600 dark:text-gray-300">
-                No members available to transfer ownership to. You need to have at least one other
-                member in the workspace to transfer ownership.
+                {t('workspace.noMembersAvailable')}
               </div>
             </div>
           ) : (
             <div className="mb-4">
-              <div className="mb-2 font-medium text-gray-900 dark:text-white">Select new owner</div>
+              <div className="mb-2 font-medium text-gray-900 dark:text-white">
+                {t('workspace.selectNewOwner')}
+              </div>
               <Select
                 value={transferForm.selectedMemberId || undefined}
                 onChange={(memberId) => {
                   setTransferMemberError(false);
                   setTransferForm({ selectedMemberId: memberId });
                 }}
-                placeholder="Select a member to transfer ownership to"
+                placeholder={t('workspace.selectMemberPlaceholder')}
                 style={{ width: '100%' }}
                 status={transferMemberError ? 'error' : undefined}
                 options={eligibleMembers.map((member) => ({
@@ -730,7 +733,7 @@ export function WorkspaceMembershipComponent({ workspaceResponse, user }: Props)
                 }))}
               />
               <div className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                The selected member will become the workspace owner
+                {t('workspace.selectedMemberBecomesOwner')}
               </div>
             </div>
           )}

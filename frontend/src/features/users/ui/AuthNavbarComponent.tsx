@@ -1,8 +1,12 @@
+import { useTranslation } from '../../../shared/i18n';
 import { SponsorshipLinkComponent } from '../../../shared/ui';
+import { LanguageToggleComponent } from '../../../shared/ui/LanguageToggleComponent';
 import { StarButtonComponent } from '../../../shared/ui/StarButtonComponent';
 import { ThemeToggleComponent } from '../../../shared/ui/ThemeToggleComponent';
 
 export function AuthNavbarComponent() {
+  const { t } = useTranslation();
+
   return (
     <div className="flex h-[65px] items-center justify-center px-5 pt-5 sm:justify-start">
       <div className="flex items-center gap-3 hover:opacity-80">
@@ -17,7 +21,7 @@ export function AuthNavbarComponent() {
             target="_blank"
             rel="noreferrer"
           >
-            Databasus
+            {t('common.databasus')}
           </a>
         </div>
       </div>
@@ -29,7 +33,7 @@ export function AuthNavbarComponent() {
           target="_blank"
           rel="noreferrer"
         >
-          Docs
+          {t('common.docs')}
         </a>
 
         <a
@@ -38,7 +42,7 @@ export function AuthNavbarComponent() {
           target="_blank"
           rel="noreferrer"
         >
-          Community
+          {t('common.community')}
         </a>
 
         <SponsorshipLinkComponent className="!text-black hover:opacity-80 dark:!text-gray-200" />
@@ -47,6 +51,8 @@ export function AuthNavbarComponent() {
           <StarButtonComponent />
 
           <ThemeToggleComponent />
+
+          <LanguageToggleComponent />
         </div>
       </div>
     </div>

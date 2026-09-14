@@ -3,6 +3,7 @@ import { App, Button, Input } from 'antd';
 import { type JSX, useState } from 'react';
 
 import { userApi } from '../../../entity/users';
+import { useTranslation } from '../../../shared/i18n';
 import { StringUtils } from '../../../shared/lib';
 import { FormValidator } from '../../../shared/lib/FormValidator';
 
@@ -17,6 +18,7 @@ export function ResetPasswordComponent({
   onSwitchToRequestCode,
   initialEmail = '',
 }: ResetPasswordComponentProps): JSX.Element {
+  const { t } = useTranslation();
   const { message } = App.useApp();
   const [email, setEmail] = useState(initialEmail);
   const [code, setCode] = useState('');
@@ -52,7 +54,7 @@ export function ResetPasswordComponent({
       isValid = false;
     } else if (!/^\d{6}$/.test(code)) {
       setCodeError(true);
-      message.error('Code must be 6 digits');
+        message.error(t('auth.codeMust6Digits'));
       isValid = false;
     } else {
       setCodeError(false);
@@ -63,7 +65,7 @@ export function ResetPasswordComponent({
       isValid = false;
     } else if (newPassword.length < 8) {
       setPasswordError(true);
-      message.error('Password must be at least 8 characters long');
+        message.error(t('auth.passwordMin8'));
       isValid = false;
     } else {
       setPasswordError(false);
@@ -74,7 +76,7 @@ export function ResetPasswordComponent({
       isValid = false;
     } else if (newPassword !== confirmPassword) {
       setConfirmPasswordError(true);
-      message.error('Passwords do not match');
+        message.error(t('auth.passwordsDoNotMatch'));
       isValid = false;
     } else {
       setConfirmPasswordError(false);
@@ -96,7 +98,7 @@ export function ResetPasswordComponent({
           newPassword,
         });
 
-        message.success('Password reset successfully! Redirecting to sign in...');
+        message.success(t('auth.resetSuccess'));
 
         // Redirect to sign in after successful reset
         setTimeout(() => {
@@ -114,15 +116,15 @@ export function ResetPasswordComponent({
 
   return (
     <div className="w-full max-w-[300px]">
-      <div className="mb-5 text-center text-2xl font-bold">Reset Password</div>
+      <div className="mb-5 text-center text-2xl font-bold">{t('auth.resetPasswordTitleH1')}</div>
 
       <div className="mb-4 text-center text-sm text-gray-600 dark:text-gray-400">
-        Enter the code sent to your email and your new password.
+        {t('auth.resetPasswordHint2')}
       </div>
 
-      <div className="my-1 text-xs font-semibold">Your email</div>
+      <div className="my-1 text-xs font-semibold">{t('auth.yourEmail')}</div>
       <Input
-        placeholder="your@email.com"
+        placeholder={t('auth.emailPlaceholder')}
         value={email}
         onChange={(e) => {
           setEmailError(false);
@@ -132,9 +134,9 @@ export function ResetPasswordComponent({
         type="email"
       />
 
-      <div className="my-1 text-xs font-semibold">Reset Code</div>
+      <div className="my-1 text-xs font-semibold">{t('auth.resetCode')}</div>
       <Input
-        placeholder="123456"
+        placeholder={t('auth.resetCodePlaceholder')}
         value={code}
         onChange={(e) => {
           setCodeError(false);
@@ -145,9 +147,9 @@ export function ResetPasswordComponent({
         maxLength={6}
       />
 
-      <div className="my-1 text-xs font-semibold">New Password</div>
+      <div className="my-1 text-xs font-semibold">{t('auth.newPassword')}</div>
       <Input.Password
-        placeholder="********"
+        placeholder={t('auth.passwordPlaceholder')}
         value={newPassword}
         onChange={(e) => {
           setPasswordError(false);
@@ -158,9 +160,9 @@ export function ResetPasswordComponent({
         visibilityToggle={{ visible: passwordVisible, onVisibleChange: setPasswordVisible }}
       />
 
-      <div className="my-1 text-xs font-semibold">Confirm Password</div>
+      <div className="my-1 text-xs font-semibold">{t('auth.confirmNewPassword')}</div>
       <Input.Password
-        placeholder="********"
+        placeholder={t('auth.passwordPlaceholder')}
         value={confirmPassword}
         status={confirmPasswordError ? 'error' : undefined}
         onChange={(e) => {
@@ -185,7 +187,7 @@ export function ResetPasswordComponent({
         }}
         type="primary"
       >
-        Reset password
+        {t('auth.resetPasswordButton')}
       </Button>
 
       {error && (
@@ -195,13 +197,13 @@ export function ResetPasswordComponent({
       <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
         {onSwitchToRequestCode && (
           <>
-            Didn&apos;t receive a code?{' '}
+            {t('auth.didntReceiveCode')}{' '}
             <button
               type="button"
               onClick={onSwitchToRequestCode}
               className="cursor-pointer font-medium text-blue-600 hover:text-blue-700 dark:!text-blue-500"
             >
-              Request new code
+              {t('auth.requestNewCode')}
             </button>
             <br />
           </>
@@ -212,7 +214,7 @@ export function ResetPasswordComponent({
             onClick={onSwitchToSignIn}
             className="cursor-pointer font-medium text-blue-600 hover:text-blue-700 dark:!text-blue-500"
           >
-            Back to sign in
+            {t('common.backToSignIn')}
           </button>
         )}
       </div>

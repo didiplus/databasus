@@ -9,6 +9,7 @@ import {
   healthcheckAttemptApi,
   healthcheckConfigApi,
 } from '../../../entity/healthcheck';
+import { useTranslation } from '../../../shared/i18n';
 import { getUserShortTimeFormat } from '../../../shared/time/getUserTimeFormat';
 
 interface Props {
@@ -41,6 +42,7 @@ const getAfterDateByPeriod = (period: 'today' | '7d' | '30d' | 'all'): Date => {
 };
 
 export const HealthckeckAttemptsComponent = ({ database, onVisibilityChange }: Props) => {
+  const { t } = useTranslation();
   const [isHealthcheckConfigLoading, setIsHealthcheckConfigLoading] = useState(false);
   const [isShowHealthcheckConfig, setIsShowHealthcheckConfig] = useState(false);
 
@@ -129,20 +131,20 @@ export const HealthckeckAttemptsComponent = ({ database, onVisibilityChange }: P
 
   return (
     <div className="mb-5 w-full rounded-tr-md rounded-br-md rounded-bl-md bg-white p-3 shadow sm:p-5 dark:bg-gray-800">
-      <h2 className="text-lg font-bold sm:text-xl">Healthcheck attempts</h2>
+      <h2 className="text-lg font-bold sm:text-xl">{t('healthcheck.attemptsTitle')}</h2>
 
       <div className="mt-3 flex flex-col gap-2 sm:mt-4 sm:flex-row sm:items-center">
-        <span className="text-sm font-medium sm:mr-2">Period</span>
+        <span className="text-sm font-medium sm:mr-2">{t('healthcheck.period')}</span>
         <Select
           size="small"
           value={period}
           onChange={(value) => setPeriod(value)}
           className="w-full sm:w-[120px]"
           options={[
-            { value: 'today', label: 'Today' },
-            { value: '7d', label: '7 days' },
-            { value: '30d', label: '30 days' },
-            { value: 'all', label: 'All time' },
+            { value: 'today', label: t('healthcheck.periodToday') },
+            { value: '7d', label: t('healthcheck.period7Days') },
+            { value: '30d', label: t('healthcheck.period30Days') },
+            { value: 'all', label: t('healthcheck.periodAllTime') },
           ]}
         />
       </div>
@@ -171,7 +173,7 @@ export const HealthckeckAttemptsComponent = ({ database, onVisibilityChange }: P
               </Tooltip>
             ))
           ) : (
-            <div className="text-xs text-gray-400">No data yet</div>
+            <div className="text-xs text-gray-400">{t('healthcheck.noData')}</div>
           )}
         </div>
       )}

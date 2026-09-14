@@ -3,6 +3,7 @@ import { Checkbox, Input, Tooltip } from 'antd';
 import { useState } from 'react';
 
 import type { Notifier } from '../../../../../entity/notifiers';
+import { useTranslation } from '../../../../../shared/i18n';
 
 interface Props {
   notifier: Notifier;
@@ -11,13 +12,15 @@ interface Props {
 }
 
 export function EditEmailNotifierComponent({ notifier, setNotifier, setUnsaved }: Props) {
+  const { t } = useTranslation();
+
   const hasAdvancedValues = !!notifier?.emailNotifier?.isInsecureSkipVerify;
   const [showAdvanced, setShowAdvanced] = useState(hasAdvancedValues);
 
   return (
     <>
       <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-        <div className="mb-1 min-w-[150px] sm:mb-0">Target email</div>
+        <div className="mb-1 min-w-[150px] sm:mb-0">{t('notifiers.targetEmail')}</div>
         <div className="flex items-center">
           <Input
             value={notifier?.emailNotifier?.targetEmail || ''}
@@ -40,7 +43,7 @@ export function EditEmailNotifierComponent({ notifier, setNotifier, setUnsaved }
 
           <Tooltip
             className="cursor-pointer"
-            title="The email where you want to receive the message"
+            title={t('notifiers.emailTargetTooltip')}
           >
             <InfoCircleOutlined className="ml-2" style={{ color: 'gray' }} />
           </Tooltip>
@@ -48,7 +51,7 @@ export function EditEmailNotifierComponent({ notifier, setNotifier, setUnsaved }
       </div>
 
       <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-        <div className="mb-1 min-w-[150px] sm:mb-0">SMTP host</div>
+        <div className="mb-1 min-w-[150px] sm:mb-0">{t('notifiers.smtpHost')}</div>
         <Input
           value={notifier?.emailNotifier?.smtpHost || ''}
           onChange={(e) => {
@@ -70,7 +73,7 @@ export function EditEmailNotifierComponent({ notifier, setNotifier, setUnsaved }
       </div>
 
       <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-        <div className="mb-1 min-w-[150px] sm:mb-0">SMTP port</div>
+        <div className="mb-1 min-w-[150px] sm:mb-0">{t('notifiers.smtpPort')}</div>
         <Input
           type="number"
           value={notifier?.emailNotifier?.smtpPort || ''}
@@ -93,7 +96,7 @@ export function EditEmailNotifierComponent({ notifier, setNotifier, setUnsaved }
       </div>
 
       <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-        <div className="mb-1 min-w-[150px] sm:mb-0">SMTP user</div>
+        <div className="mb-1 min-w-[150px] sm:mb-0">{t('notifiers.smtpUser')}</div>
         <Input
           value={notifier?.emailNotifier?.smtpUser || ''}
           onChange={(e) => {
@@ -115,7 +118,7 @@ export function EditEmailNotifierComponent({ notifier, setNotifier, setUnsaved }
       </div>
 
       <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-        <div className="mb-1 min-w-[150px] sm:mb-0">SMTP password</div>
+        <div className="mb-1 min-w-[150px] sm:mb-0">{t('notifiers.smtpPassword')}</div>
         <Input
           type="password"
           value={notifier?.emailNotifier?.smtpPassword || ''}
@@ -138,7 +141,7 @@ export function EditEmailNotifierComponent({ notifier, setNotifier, setUnsaved }
       </div>
 
       <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-        <div className="mb-1 min-w-[150px] sm:mb-0">From</div>
+        <div className="mb-1 min-w-[150px] sm:mb-0">{t('notifiers.from')}</div>
         <div className="flex items-center">
           <Input
             value={notifier?.emailNotifier?.from || ''}
@@ -161,7 +164,7 @@ export function EditEmailNotifierComponent({ notifier, setNotifier, setUnsaved }
 
           <Tooltip
             className="cursor-pointer"
-            title="Optional. Email address to use as sender. If empty, will use SMTP user or auto-generate from host"
+            title={t('notifiers.fromTooltip')}
           >
             <InfoCircleOutlined className="ml-2" style={{ color: 'gray' }} />
           </Tooltip>
@@ -173,7 +176,7 @@ export function EditEmailNotifierComponent({ notifier, setNotifier, setUnsaved }
           className="flex cursor-pointer items-center text-sm text-blue-600 hover:text-blue-800"
           onClick={() => setShowAdvanced(!showAdvanced)}
         >
-          <span className="mr-2">Advanced settings</span>
+          <span className="mr-2">{t('notifiers.advancedSettings')}</span>
 
           {showAdvanced ? (
             <UpOutlined style={{ fontSize: '12px' }} />
@@ -185,7 +188,7 @@ export function EditEmailNotifierComponent({ notifier, setNotifier, setUnsaved }
 
       {showAdvanced && (
         <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-          <div className="mb-1 min-w-[150px] sm:mb-0">Skip TLS verify</div>
+          <div className="mb-1 min-w-[150px] sm:mb-0">{t('notifiers.skipTlsVerify')}</div>
           <div className="flex items-center">
             <Checkbox
               checked={notifier?.emailNotifier?.isInsecureSkipVerify || false}
@@ -202,12 +205,12 @@ export function EditEmailNotifierComponent({ notifier, setNotifier, setUnsaved }
                 setUnsaved();
               }}
             >
-              Skip TLS
+              {t('notifiers.skipTls')}
             </Checkbox>
 
             <Tooltip
               className="cursor-pointer"
-              title="Skip TLS certificate verification. Enable this if your SMTP server uses a self-signed certificate. Warning: this reduces security."
+              title={t('notifiers.skipTlsTooltip')}
             >
               <InfoCircleOutlined className="ml-2" style={{ color: 'gray' }} />
             </Tooltip>

@@ -11,6 +11,7 @@ import {
   verificationRunsApi,
 } from '../../../../entity/verification/runs';
 import { getUserTimeFormat } from '../../../../shared/time';
+import { useTranslation } from '../../../../shared/i18n';
 
 interface Props {
   verificationId: string;
@@ -48,37 +49,6 @@ const formatSizeBytes = (sizeBytes?: number) => {
   return `${Number(sizeMb.toFixed(2)).toLocaleString()} MB`;
 };
 
-const renderStatusTag = (status: VerificationStatus) => {
-  if (status === VerificationStatus.COMPLETED) {
-    return <Tag color="green">Successful</Tag>;
-  }
-
-  if (status === VerificationStatus.FAILED) {
-    return <Tag color="red">Failed</Tag>;
-  }
-
-  if (status === VerificationStatus.RUNNING) {
-    return <Tag color="blue">Running</Tag>;
-  }
-
-  if (status === VerificationStatus.PENDING) {
-    return <Tag>Pending</Tag>;
-  }
-
-  if (status === VerificationStatus.CANCELED) {
-    return <Tag color="default">Canceled</Tag>;
-  }
-
-  return <Tag>{status}</Tag>;
-};
-
-const renderTriggerTag = (trigger: VerificationTrigger) => {
-  if (trigger === VerificationTrigger.MANUAL) {
-    return <Tag color="blue">Manual</Tag>;
-  }
-
-  return <Tag color="purple">Scheduled</Tag>;
-};
 
 const renderTimestamp = (iso: string) => (
   <span className="flex flex-col items-end">
@@ -106,6 +76,40 @@ const renderSection = (title: string, children: React.ReactNode) => (
 );
 
 export const VerificationDetailDrawer = ({ verificationId, onClose }: Props) => {
+  const { t } = useTranslation();
+
+  const renderStatusTag = (status: VerificationStatus) => {
+    if (status === VerificationStatus.COMPLETED) {
+      return <Tag color="green">{t('common.successful')}</Tag>;
+    }
+
+    if (status === VerificationStatus.FAILED) {
+      return <Tag color="red">{t('common.failed')}</Tag>;
+    }
+
+    if (status === VerificationStatus.RUNNING) {
+      return <Tag color="blue">{t('common.running')}</Tag>;
+    }
+
+    if (status === VerificationStatus.PENDING) {
+      return <Tag>{t('common.pending')}</Tag>;
+    }
+
+    if (status === VerificationStatus.CANCELED) {
+      return <Tag color="default">{t('common.canceled')}</Tag>;
+    }
+
+    return <Tag>{status}</Tag>;
+  };
+
+  const renderTriggerTag = (trigger: VerificationTrigger) => {
+    if (trigger === VerificationTrigger.MANUAL) {
+      return <Tag color="blue">{t('common.manual')}</Tag>;
+    }
+
+    return <Tag color="purple">{t('common.scheduled')}</Tag>;
+  };
+
   const [verification, setVerification] = useState<RestoreVerification | undefined>();
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | undefined>();
@@ -135,20 +139,20 @@ export const VerificationDetailDrawer = ({ verificationId, onClose }: Props) => 
 
   const tableStatColumns: ColumnsType<RestoreVerificationTableStat> = [
     {
-      title: 'Schema',
+      title: t('verification.columnSchema'),
       dataIndex: 'schemaName',
       key: 'schemaName',
       width: 140,
       render: (schemaName: string) => <span className="font-mono text-xs">{schemaName}</span>,
     },
     {
-      title: 'Table',
+      title: t('verification.columnTable'),
       dataIndex: 'name',
       key: 'name',
       render: (name: string) => <span className="font-mono text-xs">{name}</span>,
     },
     {
-      title: 'Rows',
+      title: t('verification.columnRows'),
       dataIndex: 'rowCount',
       key: 'rowCount',
       width: 120,
@@ -162,7 +166,7 @@ export const VerificationDetailDrawer = ({ verificationId, onClose }: Props) => 
 
   return (
     <Drawer
-      title="Restore check details"
+      title={t('verification.detailTitle')}
       placement="right"
       width={520}
       onClose={onClose}
@@ -174,68 +178,68 @@ export const VerificationDetailDrawer = ({ verificationId, onClose }: Props) => 
       ) : loadError || !verification ? (
         <div className="flex flex-col items-center gap-3 py-12 text-center">
           <div className="text-sm text-gray-500 dark:text-gray-400">
-            Could not load restore check details.
+            {t('verification.detailLoadError')}
           </div>
-          <Button onClick={loadVerification}>Retry</Button>
+          <Button onClick={loadVerification}>{t('common.retry')}</Button>
         </div>
       ) : (
         <div>
           {verification.failMessage &&
             (verification.status === VerificationStatus.CANCELED ? (
               <div className="mb-4 rounded-md border border-gray-200 bg-gray-50 p-3 text-sm text-gray-700 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                <div className="mb-1 font-semibold">Cancellation reason</div>
+                <div className="mb-1 font-semibold">{t('verification.cancellationReason')}</div>
                 <div className="break-words whitespace-pre-wrap">{verification.failMessage}</div>
               </div>
             ) : (
               <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700 dark:border-red-900 dark:bg-red-950 dark:text-red-300">
-                <div className="mb-1 font-semibold">Failure</div>
+                <div className="mb-1 font-semibold">{t('verification.failure')}</div>
                 <div className="break-words whitespace-pre-wrap">{verification.failMessage}</div>
               </div>
             ))}
 
           {renderSection(
-            'Status',
+            t('common.status'),
             <>
-              {renderInfoRow('Status', renderStatusTag(verification.status))}
-              {renderInfoRow('Trigger', renderTriggerTag(verification.trigger))}
-              {renderInfoRow('Attempt', verification.attemptCount)}
+              {renderInfoRow(t('common.status'), renderStatusTag(verification.status))}
+              {renderInfoRow(t('verification.trigger'), renderTriggerTag(verification.trigger))}
+              {renderInfoRow(t('verification.attemptLabel'), verification.attemptCount)}
             </>,
           )}
 
           {renderSection(
-            'Timeline',
+            t('verification.timeline'),
             <>
-              {renderInfoRow('Created at', renderTimestamp(verification.createdAt))}
+              {renderInfoRow(t('verification.columnCreatedAt'), renderTimestamp(verification.createdAt))}
               {verification.startedAt &&
-                renderInfoRow('Started at', renderTimestamp(verification.startedAt))}
+                renderInfoRow(t('verification.startedAt'), renderTimestamp(verification.startedAt))}
               {verification.finishedAt &&
-                renderInfoRow('Finished at', renderTimestamp(verification.finishedAt))}
+                renderInfoRow(t('verification.finishedAt'), renderTimestamp(verification.finishedAt))}
             </>,
           )}
 
           {renderSection(
-            'Results & diagnostics',
+            t('verification.resultsDiagnostics'),
             <>
-              {renderInfoRow('Restore duration', formatDurationMs(verification.restoreDurationMs))}
-              {renderInfoRow('Verify duration', formatDurationMs(verification.verifyDurationMs))}
+              {renderInfoRow(t('verification.restoreDuration'), formatDurationMs(verification.restoreDurationMs))}
+              {renderInfoRow(t('verification.verifyDuration'), formatDurationMs(verification.verifyDurationMs))}
               {renderInfoRow(
-                'Restored DB size',
+                t('verification.restoredDbSize'),
                 formatSizeBytes(verification.dbSizeBytesAfterRestore),
               )}
-              {renderInfoRow('Schemas', verification.schemaCount ?? '-')}
-              {renderInfoRow('Tables', verification.tableCount ?? '-')}
+              {renderInfoRow(t('verification.schemas'), verification.schemaCount ?? '-')}
+              {renderInfoRow(t('verification.tables'), verification.tableCount ?? '-')}
               {verification.pgRestoreExitCode !== undefined &&
                 verification.pgRestoreExitCode !== null &&
-                renderInfoRow('pg_restore exit code', verification.pgRestoreExitCode)}
+                renderInfoRow(t('verification.pgRestoreExitCode'), verification.pgRestoreExitCode)}
             </>,
           )}
 
           <h3 className="mt-2 mb-2 text-base font-semibold dark:text-white">
-            Per-table row counts
+            {t('verification.perTableRowCounts')}
           </h3>
           {sortedStats.length === 0 ? (
             <div className="text-sm text-gray-500 dark:text-gray-400">
-              No per-table stats reported.
+              {t('verification.noPerTableStats')}
             </div>
           ) : (
             <Table

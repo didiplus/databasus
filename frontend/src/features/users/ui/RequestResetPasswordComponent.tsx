@@ -2,6 +2,7 @@ import { Button, Input } from 'antd';
 import { type JSX, useState } from 'react';
 
 import { useCloudflareTurnstile } from '../../../shared/hooks/useCloudflareTurnstile';
+import { useTranslation } from '../../../shared/i18n';
 
 import { userApi } from '../../../entity/users';
 import { StringUtils } from '../../../shared/lib';
@@ -17,6 +18,7 @@ export function RequestResetPasswordComponent({
   onSwitchToSignIn,
   onSwitchToResetPassword,
 }: RequestResetPasswordComponentProps): JSX.Element {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [isLoading, setLoading] = useState(false);
   const [isEmailError, setEmailError] = useState(false);
@@ -70,15 +72,15 @@ export function RequestResetPasswordComponent({
 
   return (
     <div className="w-full max-w-[300px]">
-      <div className="mb-5 text-center text-2xl font-bold">Reset password</div>
+      <div className="mb-5 text-center text-2xl font-bold">{t('auth.resetPasswordTitle')}</div>
 
       <div className="mb-4 text-center text-sm text-gray-600 dark:text-gray-400">
-        Enter your email address and we&apos;ll send you a reset code.
+        {t('auth.resetPasswordHint')}
       </div>
 
-      <div className="my-1 text-xs font-semibold">Your email</div>
+      <div className="my-1 text-xs font-semibold">{t('auth.yourEmail')}</div>
       <Input
-        placeholder="your@email.com"
+        placeholder={t('auth.emailPlaceholder')}
         value={email}
         onChange={(e) => {
           setEmailError(false);
@@ -104,7 +106,7 @@ export function RequestResetPasswordComponent({
         }}
         type="primary"
       >
-        Send reset code
+        {t('auth.sendResetCode')}
       </Button>
 
       {error && (
@@ -119,13 +121,13 @@ export function RequestResetPasswordComponent({
 
       {onSwitchToSignIn && (
         <div className="mt-4 text-center text-sm text-gray-600 dark:text-gray-400">
-          Remember your password?{' '}
+          {t('auth.rememberPassword')}{' '}
           <button
             type="button"
             onClick={onSwitchToSignIn}
             className="cursor-pointer font-medium text-blue-600 hover:text-blue-700 dark:!text-blue-500"
           >
-            Sign in
+            {t('auth.signInButton')}
           </button>
         </div>
       )}

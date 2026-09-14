@@ -20,6 +20,7 @@ import {
 } from '../../../entity/databases';
 import { EditLogicalBackupConfigComponent } from '../../backups/logical';
 import { EditPhysicalBackupConfigComponent } from '../../backups/physical';
+import { useTranslation } from '../../../shared/i18n';
 import { ChoosePostgresBackupTypeComponent } from './edit/ChoosePostgresBackupTypeComponent';
 import { CreateReadOnlyComponent } from './edit/CreateReadOnlyComponent';
 import { EditDatabaseBaseInfoComponent } from './edit/EditDatabaseBaseInfoComponent';
@@ -54,6 +55,7 @@ export const CreateDatabaseComponent = ({
   onClose,
   onConnectionErrorChange,
 }: Props) => {
+  const { t } = useTranslation();
   const [isCreating, setIsCreating] = useState(false);
   const [backupConfig, setBackupConfig] = useState<LogicalBackupConfig | undefined>();
   const [physicalBackupConfig, setPhysicalBackupConfig] = useState<
@@ -115,7 +117,7 @@ export const CreateDatabaseComponent = ({
           isShowName
           isShowEngine
           isSaveToApi={false}
-          saveButtonText="Continue"
+          saveButtonText={t('common.continue')}
           onCancel={() => onClose()}
           onSaved={(db) => {
             const initializedDb = initializeDatabaseTypeData(db);
@@ -186,7 +188,7 @@ export const CreateDatabaseComponent = ({
           onCancel={() => onClose()}
           isShowBackButton
           onBack={() => setStep('db-settings')}
-          saveButtonText="Continue"
+          saveButtonText={t('common.continue')}
           isSaveToApi={false}
           onSaved={(physicalBackupConfig) => {
             setPhysicalBackupConfig(physicalBackupConfig);
@@ -215,7 +217,7 @@ export const CreateDatabaseComponent = ({
 
   if (step === 'notifiers') {
     if (isCreating) {
-      return <div>Creating database...</div>;
+      return <div>{t('databases.creatingDatabase')}</div>;
     }
 
     return (
@@ -227,7 +229,7 @@ export const CreateDatabaseComponent = ({
         isShowBackButton
         onBack={() => setStep('backup-config')}
         isShowSaveOnlyForUnsaved={false}
-        saveButtonText="Complete"
+        saveButtonText={t('common.complete')}
         isSaveToApi={false}
         onSaved={(database) => {
           if (isCreating) return;

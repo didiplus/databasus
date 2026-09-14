@@ -10,6 +10,7 @@ import {
   createEmptySshTunnelConfig,
   setSshTunnelAuthTypeAndClearUnusedSecrets,
 } from '../../../../entity/databases';
+import { useTranslation } from '../../../../shared/i18n';
 
 interface Props {
   sshTunnel: SshTunnelConfig | undefined;
@@ -18,6 +19,7 @@ interface Props {
 }
 
 export const EditSshTunnelComponent = ({ sshTunnel, hasStoredSecrets, onChange }: Props) => {
+  const { t } = useTranslation();
   const [isReplacingSecrets, setIsReplacingSecrets] = useState(false);
 
   const updateField = <Field extends keyof SshTunnelConfig>(
@@ -38,11 +40,11 @@ export const EditSshTunnelComponent = ({ sshTunnel, hasStoredSecrets, onChange }
 
   const renderStoredSecrets = () => (
     <div className="mb-3 flex w-full items-center">
-      <div className="min-w-[150px]">SSH credentials</div>
+      <div className="min-w-[150px]">{t('databases.sshCredentials')}</div>
       <div className="flex items-center">
         <span className="mr-3">*************</span>
         <Button size="small" onClick={startReplacingSecrets}>
-          Replace
+          {t('common.replace')}
         </Button>
       </div>
     </div>
@@ -50,7 +52,7 @@ export const EditSshTunnelComponent = ({ sshTunnel, hasStoredSecrets, onChange }
 
   const renderPassword = () => (
     <div className="mb-3 flex w-full items-center">
-      <div className="min-w-[150px]">SSH password</div>
+      <div className="min-w-[150px]">{t('databases.sshPassword')}</div>
       <Input.Password
         value={currentTunnel.password}
         onChange={(e) => updateField('password', e.target.value)}
@@ -68,7 +70,7 @@ export const EditSshTunnelComponent = ({ sshTunnel, hasStoredSecrets, onChange }
   const renderPrivateKey = () => (
     <>
       <div className="mb-1 flex w-full items-start">
-        <div className="min-w-[150px] leading-6">SSH private key</div>
+        <div className="min-w-[150px] leading-6">{t('databases.sshPrivateKey')}</div>
         <Input.TextArea
           value={currentTunnel.privateKey}
           onChange={(e) => updateField('privateKey', e.target.value)}
@@ -80,13 +82,13 @@ export const EditSshTunnelComponent = ({ sshTunnel, hasStoredSecrets, onChange }
       </div>
 
       <div className="mb-3 flex w-full items-center">
-        <div className="min-w-[150px]">Key passphrase</div>
+        <div className="min-w-[150px]">{t('databases.keyPassphrase')}</div>
         <Input.Password
           value={currentTunnel.privateKeyPassphrase}
           onChange={(e) => updateField('privateKeyPassphrase', e.target.value)}
           size="small"
           className="max-w-[200px] grow"
-          placeholder="Only for an encrypted key"
+          placeholder={t('databases.keyPassphrasePlaceholder')}
           autoComplete="off"
           data-1p-ignore
           data-lpignore="true"
@@ -109,14 +111,14 @@ export const EditSshTunnelComponent = ({ sshTunnel, hasStoredSecrets, onChange }
   return (
     <>
       <div className="mb-1 flex w-full items-center">
-        <div className="min-w-[150px]">SSH tunnel</div>
+        <div className="min-w-[150px]">{t('databases.sshTunnel')}</div>
         <Checkbox
           checked={currentTunnel.isEnabled}
           onChange={(e) => updateField('isEnabled', e.target.checked)}
         >
           <Tooltip
             className="cursor-pointer"
-            title="For a database inside a closed network. Databasus connects to the SSH host below, and that host reaches the database using the host and port above."
+            title={t('databases.sshTunnelTooltip')}
           >
             <InfoCircleOutlined style={{ color: 'gray' }} />
           </Tooltip>
@@ -126,7 +128,7 @@ export const EditSshTunnelComponent = ({ sshTunnel, hasStoredSecrets, onChange }
       {currentTunnel.isEnabled && (
         <>
           <div className="mb-1 flex w-full items-center">
-            <div className="min-w-[150px]">SSH host</div>
+            <div className="min-w-[150px]">{t('databases.sshHost')}</div>
             <Input
               value={currentTunnel.host}
               onChange={(e) => updateField('host', e.target.value)}
@@ -137,14 +139,14 @@ export const EditSshTunnelComponent = ({ sshTunnel, hasStoredSecrets, onChange }
 
             <Tooltip
               className="cursor-pointer"
-              title="The database host above is resolved by the SSH host, not by Databasus. Use 127.0.0.1 when the database runs on the SSH host itself."
+              title={t('databases.sshHostTooltip')}
             >
               <InfoCircleOutlined className="ml-2" style={{ color: 'gray' }} />
             </Tooltip>
           </div>
 
           <div className="mb-1 flex w-full items-center">
-            <div className="min-w-[150px]">SSH port</div>
+            <div className="min-w-[150px]">{t('databases.sshPort')}</div>
             <InputNumber
               value={currentTunnel.port}
               onChange={(value) => updateField('port', value ?? DEFAULT_SSH_PORT)}
@@ -156,7 +158,7 @@ export const EditSshTunnelComponent = ({ sshTunnel, hasStoredSecrets, onChange }
           </div>
 
           <div className="mb-1 flex w-full items-center">
-            <div className="min-w-[150px]">SSH username</div>
+            <div className="min-w-[150px]">{t('databases.sshUsername')}</div>
             <Input
               value={currentTunnel.username}
               onChange={(e) => updateField('username', e.target.value)}
@@ -167,7 +169,7 @@ export const EditSshTunnelComponent = ({ sshTunnel, hasStoredSecrets, onChange }
           </div>
 
           <div className="mb-1 flex w-full items-center">
-            <div className="min-w-[150px]">SSH auth</div>
+            <div className="min-w-[150px]">{t('databases.sshAuth')}</div>
             <Select
               value={currentTunnel.authType}
               onChange={changeAuthType}

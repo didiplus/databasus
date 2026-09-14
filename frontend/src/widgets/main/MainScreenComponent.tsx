@@ -23,7 +23,9 @@ import {
   WorkspaceSettingsComponent,
 } from '../../features/workspaces';
 import { useIsMobile, useIsNewGitHubVersionAvailable, useScreenHeight } from '../../shared/hooks';
+import { useTranslation } from '../../shared/i18n';
 import { SponsorshipLinkComponent } from '../../shared/ui';
+import { LanguageToggleComponent } from '../../shared/ui/LanguageToggleComponent';
 import { StarButtonComponent } from '../../shared/ui/StarButtonComponent';
 import { ThemeToggleComponent } from '../../shared/ui/ThemeToggleComponent';
 import { SidebarComponent } from './SidebarComponent';
@@ -31,6 +33,7 @@ import { WorkspaceSelectionComponent } from './WorkspaceSelectionComponent';
 
 export const MainScreenComponent = () => {
   const { message } = App.useApp();
+  const { t } = useTranslation();
   const screenHeight = useScreenHeight();
   const isMobile = useIsMobile();
   const isNewGitHubVersionAvailable = useIsNewGitHubVersionAvailable();
@@ -122,7 +125,7 @@ export const MainScreenComponent = () => {
 
   const tabs = [
     {
-      text: 'Databases',
+      text: t('nav.databases'),
       name: 'databases',
       icon: '/icons/menu/database-gray.svg',
       selectedIcon: '/icons/menu/database-white.svg',
@@ -132,7 +135,7 @@ export const MainScreenComponent = () => {
       isVisible: true,
     },
     {
-      text: 'Storages',
+      text: t('nav.storages'),
       name: 'storages',
       icon: '/icons/menu/storage-gray.svg',
       selectedIcon: '/icons/menu/storage-white.svg',
@@ -142,7 +145,7 @@ export const MainScreenComponent = () => {
       isVisible: !!selectedWorkspace,
     },
     {
-      text: 'Notifiers',
+      text: t('nav.notifiers'),
       name: 'notifiers',
       icon: '/icons/menu/notifier-gray.svg',
       selectedIcon: '/icons/menu/notifier-white.svg',
@@ -152,7 +155,7 @@ export const MainScreenComponent = () => {
       isVisible: !!selectedWorkspace,
     },
     {
-      text: 'Settings',
+      text: t('nav.settings'),
       name: 'settings',
       icon: '/icons/menu/workspace-settings-gray.svg',
       selectedIcon: '/icons/menu/workspace-settings-white.svg',
@@ -162,7 +165,7 @@ export const MainScreenComponent = () => {
       isVisible: !!selectedWorkspace,
     },
     {
-      text: 'Profile',
+      text: t('nav.profile'),
       name: 'profile',
       icon: '/icons/menu/profile-gray.svg',
       selectedIcon: '/icons/menu/profile-white.svg',
@@ -172,7 +175,7 @@ export const MainScreenComponent = () => {
       isVisible: true,
     },
     {
-      text: 'Databasus settings',
+      text: t('nav.databasusSettings'),
       name: 'databasus-settings',
       icon: '/icons/menu/global-settings-gray.svg',
       selectedIcon: '/icons/menu/global-settings-white.svg',
@@ -182,7 +185,7 @@ export const MainScreenComponent = () => {
       isVisible: true,
     },
     {
-      text: 'Users',
+      text: t('nav.users'),
       name: 'users',
       icon: '/icons/menu/user-card-gray.svg',
       selectedIcon: '/icons/menu/user-card-white.svg',
@@ -220,7 +223,7 @@ export const MainScreenComponent = () => {
             target="_blank"
             rel="noreferrer"
           >
-            Docs
+            {t('common.docs')}
           </a>
 
           <a
@@ -229,20 +232,20 @@ export const MainScreenComponent = () => {
             target="_blank"
             rel="noreferrer"
           >
-            Community
+            {t('common.community')}
           </a>
 
           <SponsorshipLinkComponent className="!text-black hover:opacity-80 dark:!text-gray-200" />
 
           {isUsedMoreThan85Percent && (
-            <Tooltip title="To make backups locally and restore them, you need to have enough space on your disk. For restore, you need to have same amount of space that the backup size.">
+            <Tooltip title={t('disk.tooltip')}>
               <div
                 className={`cursor-pointer text-center text-xs ${isUsedMoreThan95Percent ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'}`}
               >
-                {(diskUsage.usedSpaceBytes / 1024 ** 3).toFixed(1)} of{' '}
+                {(diskUsage.usedSpaceBytes / 1024 ** 3).toFixed(1)} {t('disk.of')}{' '}
                 {(diskUsage.totalSpaceBytes / 1024 ** 3).toFixed(1)} GB
                 <br />
-                ROM used (
+                {t('disk.romUsed')}
                 {((diskUsage.usedSpaceBytes / diskUsage.totalSpaceBytes) * 100).toFixed(1)}%)
               </div>
             </Tooltip>
@@ -252,6 +255,8 @@ export const MainScreenComponent = () => {
             <StarButtonComponent />
 
             <ThemeToggleComponent />
+
+            <LanguageToggleComponent />
           </div>
         </div>
 
@@ -316,7 +321,7 @@ export const MainScreenComponent = () => {
                       onClick={handleCreateWorkspace}
                       className="border-blue-600 bg-blue-600 hover:border-blue-700 hover:bg-blue-700"
                     >
-                      Create workspace
+                      {t('workspaceSelection.createWorkspace')}
                     </Button>
                   </div>
                 </div>
@@ -370,7 +375,7 @@ export const MainScreenComponent = () => {
             <span className="inline-flex items-center gap-1.5">
               {CONTAINER_ARCH}
               {isNewGitHubVersionAvailable && (
-                <Tooltip title="New version available">
+                <Tooltip title={t('version.newVersionAvailable')}>
                   <a
                     href="https://github.com/databasus/databasus/releases/latest"
                     target="_blank"

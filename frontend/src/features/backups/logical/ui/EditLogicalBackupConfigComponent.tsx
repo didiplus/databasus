@@ -26,6 +26,7 @@ import type { Database } from '../../../../entity/databases';
 import { Period } from '../../../../entity/databases/model/Period';
 import { type Interval, IntervalType } from '../../../../entity/intervals';
 import { type Storage, getStorageLogoFromType, storageApi } from '../../../../entity/storages';
+import { useTranslation } from '../../../../shared/i18n';
 import { getUserTimeFormat } from '../../../../shared/time';
 import {
   getUserTimeFormat as getIs12Hour,
@@ -51,25 +52,6 @@ interface Props {
   onSaved: (backupConfig: LogicalBackupConfig) => void;
 }
 
-const weekdayOptions = [
-  { value: 1, label: 'Mon' },
-  { value: 2, label: 'Tue' },
-  { value: 3, label: 'Wed' },
-  { value: 4, label: 'Thu' },
-  { value: 5, label: 'Fri' },
-  { value: 6, label: 'Sat' },
-  { value: 7, label: 'Sun' },
-];
-
-const retentionPolicyOptions = [
-  {
-    label: 'GFS (keep last N hourly, daily, weekly, monthly and yearly backups)',
-    value: LogicalRetentionPolicyType.GFS,
-  },
-  { label: 'Time period (last N days)', value: LogicalRetentionPolicyType.TimePeriod },
-  { label: 'Count (N last backups)', value: LogicalRetentionPolicyType.Count },
-];
-
 export const EditLogicalBackupConfigComponent = ({
   database,
 
@@ -82,6 +64,8 @@ export const EditLogicalBackupConfigComponent = ({
   isSaveToApi,
   onSaved,
 }: Props) => {
+  const { t } = useTranslation();
+
   const [backupConfig, setBackupConfig] = useState<LogicalBackupConfig>();
   const [isUnsaved, setIsUnsaved] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -104,6 +88,25 @@ export const EditLogicalBackupConfigComponent = ({
   }, []);
 
   const dateTimeFormat = useMemo(() => getUserTimeFormat(), []);
+
+  const weekdayOptions = [
+    { value: 1, label: t('common.weekdayMon') },
+    { value: 2, label: t('common.weekdayTue') },
+    { value: 3, label: t('common.weekdayWed') },
+    { value: 4, label: t('common.weekdayThu') },
+    { value: 5, label: t('common.weekdayFri') },
+    { value: 6, label: t('common.weekdaySat') },
+    { value: 7, label: t('common.weekdaySun') },
+  ];
+
+  const retentionPolicyOptions = [
+    {
+      label: t('backups.gfs'),
+      value: LogicalRetentionPolicyType.GFS,
+    },
+    { label: t('backups.timePeriod'), value: LogicalRetentionPolicyType.TimePeriod },
+    { label: t('backups.count'), value: LogicalRetentionPolicyType.Count },
+  ];
 
   const updateBackupConfig = (patch: Partial<LogicalBackupConfig>) => {
     setBackupConfig((prev) => (prev ? { ...prev, ...patch } : prev));
@@ -205,7 +208,6 @@ export const EditLogicalBackupConfigComponent = ({
 
   const { backupInterval } = backupConfig;
 
-  // UTC → local conversions for display
   const localTime: Dayjs | undefined = backupInterval?.timeOfDay
     ? dayjs.utc(backupInterval.timeOfDay, 'HH:mm').local()
     : undefined;
@@ -261,7 +263,7 @@ export const EditLogicalBackupConfigComponent = ({
     <div>
       {database.id && (
         <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-          <div className="mb-1 min-w-[150px] sm:mb-0">Backups enabled</div>
+          <div className="mb-1 min-w-[150px] sm:mb-0">{t('backups.backupsEnabled')}</div>
           <Switch
             checked={backupConfig.isBackupsEnabled}
             onChange={(checked) => {
@@ -275,7 +277,7 @@ export const EditLogicalBackupConfigComponent = ({
       {backupConfig.isBackupsEnabled && (
         <>
           <div className="mt-4 mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-            <div className="mb-1 min-w-[150px] sm:mb-0">Backup interval</div>
+            <div className="mb-1 min-w-[150px] sm:mb-0">{t('backups.backupInterval')}</div>
             <Select
               value={backupInterval?.type}
               onChange={(v) => {
@@ -293,18 +295,18 @@ export const EditLogicalBackupConfigComponent = ({
               size="small"
               className="w-full max-w-[200px] grow"
               options={[
-                { label: 'Hourly', value: IntervalType.HOURLY },
-                { label: 'Daily', value: IntervalType.DAILY },
-                { label: 'Weekly', value: IntervalType.WEEKLY },
-                { label: 'Monthly', value: IntervalType.MONTHLY },
-                { label: 'Cron', value: IntervalType.CRON },
+                { label: t('common.hourly'), value: IntervalType.HOURLY },
+                { label: t('common.daily'), value: IntervalType.DAILY },
+                { label: t('common.weekly'), value: IntervalType.WEEKLY },
+                { label: t('common.monthly'), value: IntervalType.MONTHLY },
+                { label: t('common.cron'), value: IntervalType.CRON },
               ]}
             />
           </div>
 
           {backupInterval?.type === IntervalType.WEEKLY && (
             <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-              <div className="mb-1 min-w-[150px] sm:mb-0">Backup weekday</div>
+              <div className="mb-1 min-w-[150px] sm:mb-0">{t('backups.backupWeekday')}</div>
               <Select
                 value={displayedWeekday}
                 onChange={(localWeekday) => {
@@ -321,7 +323,7 @@ export const EditLogicalBackupConfigComponent = ({
 
           {backupInterval?.type === IntervalType.MONTHLY && (
             <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-              <div className="mb-1 min-w-[150px] sm:mb-0">Backup day of month</div>
+              <div className="mb-1 min-w-[150px] sm:mb-0">{t('backups.backupDayOfMonth')}</div>
               <InputNumber
                 min={1}
                 max={31}
@@ -340,7 +342,7 @@ export const EditLogicalBackupConfigComponent = ({
           {backupInterval?.type === IntervalType.CRON && (
             <>
               <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-                <div className="mb-1 min-w-[150px] sm:mb-0">Cron expression (UTC)</div>
+                <div className="mb-1 min-w-[150px] sm:mb-0">{t('backups.cronExpressionUtc')}</div>
                 <div className="flex items-center">
                   <Input
                     value={backupInterval?.cronExpression || ''}
@@ -353,14 +355,12 @@ export const EditLogicalBackupConfigComponent = ({
                     className="cursor-pointer"
                     title={
                       <div>
-                        <div className="font-bold">
-                          Cron format: minute hour day month weekday (UTC)
-                        </div>
-                        <div className="mt-1">Examples:</div>
-                        <div>• 0 2 * * * - Daily at 2:00 AM UTC</div>
-                        <div>• 0 */6 * * * - Every 6 hours</div>
-                        <div>• 0 3 * * 1 - Every Monday at 3:00 AM UTC</div>
-                        <div>• 30 4 1,15 * * - 1st and 15th at 4:30 AM UTC</div>
+                        <div className="font-bold">{t('backups.cronFormatHint')}</div>
+                        <div className="mt-1">{t('backups.cronExamples')}</div>
+                        <div>{t('backups.cronExample1')}</div>
+                        <div>{t('backups.cronExample2')}</div>
+                        <div>{t('backups.cronExample3')}</div>
+                        <div>{t('backups.cronExample4')}</div>
                       </div>
                     }
                   >
@@ -379,7 +379,7 @@ export const EditLogicalBackupConfigComponent = ({
                       <div className="mb-1 flex w-full flex-col items-start text-xs text-gray-600 sm:flex-row sm:items-center dark:text-gray-400">
                         <div className="mb-1 min-w-[150px] sm:mb-0" />
                         <div className="text-gray-600 dark:text-gray-400">
-                          Next run {dayjs(nextRun).local().format(dateTimeFormat.format)}
+                          {t('backups.nextRun')} {dayjs(nextRun).local().format(dateTimeFormat.format)}
                           <br />({dayjs(nextRun).fromNow()})
                         </div>
                       </div>
@@ -388,7 +388,7 @@ export const EditLogicalBackupConfigComponent = ({
                     return (
                       <div className="mb-1 flex w-full flex-col items-start text-red-500 sm:flex-row sm:items-center">
                         <div className="mb-1 min-w-[150px] sm:mb-0" />
-                        <div className="text-red-500">Invalid cron expression</div>
+                        <div className="text-red-500">{t('backups.invalidCron')}</div>
                       </div>
                     );
                   }
@@ -399,7 +399,7 @@ export const EditLogicalBackupConfigComponent = ({
           {backupInterval?.type !== IntervalType.HOURLY &&
             backupInterval?.type !== IntervalType.CRON && (
               <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-                <div className="mb-1 min-w-[150px] sm:mb-0">Backup time of day</div>
+                <div className="mb-1 min-w-[150px] sm:mb-0">{t('backups.backupTimeOfDay')}</div>
                 <TimePicker
                   value={localTime}
                   format={timeFormat.format}
@@ -429,7 +429,7 @@ export const EditLogicalBackupConfigComponent = ({
       )}
 
       <div className="mt-5 mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-        <div className="mb-1 min-w-[150px] sm:mb-0">Storage</div>
+        <div className="mb-1 min-w-[150px] sm:mb-0">{t('backups.storage')}</div>
         <div className="flex w-full items-center">
           <Select
             key={storageSelectKey}
@@ -451,9 +451,9 @@ export const EditLogicalBackupConfigComponent = ({
             className="mr-2 max-w-[200px] grow"
             options={[
               ...storages.map((s) => ({ label: s.name, value: s.id })),
-              { label: 'Create new storage', value: 'create-new-storage' },
+              { label: t('common.createNewStorage'), value: 'create-new-storage' },
             ]}
-            placeholder="Select storage"
+            placeholder={t('common.selectStorage')}
           />
 
           {backupConfig.storage?.type && (
@@ -467,7 +467,7 @@ export const EditLogicalBackupConfigComponent = ({
       </div>
 
       <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-        <div className="mb-1 min-w-[150px] sm:mb-0">Encryption</div>
+        <div className="mb-1 min-w-[150px] sm:mb-0">{t('backups.encryption')}</div>
         <div className="flex w-full items-center">
           <Select
             value={backupConfig.encryption}
@@ -475,14 +475,14 @@ export const EditLogicalBackupConfigComponent = ({
             size="small"
             className="min-w-0 grow"
             options={[
-              { label: 'None', value: BackupEncryption.NONE },
-              { label: 'Encrypt backup files', value: BackupEncryption.ENCRYPTED },
+              { label: t('common.none'), value: BackupEncryption.NONE },
+              { label: t('common.encryptBackupFiles'), value: BackupEncryption.ENCRYPTED },
             ]}
           />
 
           <Tooltip
             className="cursor-pointer"
-            title="If backup is encrypted, backup files in your storage (S3, local, etc.) cannot be used directly. You can restore backups through Databasus or download them unencrypted via the 'Download' button."
+            title={t('backups.encryptionTooltipLogical')}
           >
             <InfoCircleOutlined className="ml-2" style={{ color: 'gray' }} />
           </Tooltip>
@@ -490,7 +490,7 @@ export const EditLogicalBackupConfigComponent = ({
       </div>
 
       <div className="mt-5 mb-1 flex w-full flex-col items-start sm:flex-row sm:items-start">
-        <div className="mt-1 mb-1 min-w-[150px] sm:mb-0">Retention policy</div>
+        <div className="mt-1 mb-1 min-w-[150px] sm:mb-0">{t('backups.retentionPolicy')}</div>
         <div className="flex min-w-0 grow flex-col gap-1">
           <Select
             value={retentionPolicyType}
@@ -524,23 +524,23 @@ export const EditLogicalBackupConfigComponent = ({
                 size="small"
                 className="min-w-0 grow"
                 options={[
-                  { label: '1 day', value: Period.DAY },
-                  { label: '1 week', value: Period.WEEK },
-                  { label: '1 month', value: Period.MONTH },
-                  { label: '3 months', value: Period.THREE_MONTH },
-                  { label: '6 months', value: Period.SIX_MONTH },
-                  { label: '1 year', value: Period.YEAR },
-                  { label: '2 years', value: Period.TWO_YEARS },
-                  { label: '3 years', value: Period.THREE_YEARS },
-                  { label: '4 years', value: Period.FOUR_YEARS },
-                  { label: '5 years', value: Period.FIVE_YEARS },
-                  { label: 'Forever', value: Period.FOREVER },
+                  { label: t('backups.period1Day'), value: Period.DAY },
+                  { label: t('backups.period1Week'), value: Period.WEEK },
+                  { label: t('backups.period1Month'), value: Period.MONTH },
+                  { label: t('backups.period3Months'), value: Period.THREE_MONTH },
+                  { label: t('backups.period6Months'), value: Period.SIX_MONTH },
+                  { label: t('backups.period1Year'), value: Period.YEAR },
+                  { label: t('backups.period2Years'), value: Period.TWO_YEARS },
+                  { label: t('backups.period3Years'), value: Period.THREE_YEARS },
+                  { label: t('backups.period4Years'), value: Period.FOUR_YEARS },
+                  { label: t('backups.period5Years'), value: Period.FIVE_YEARS },
+                  { label: t('backups.forever'), value: Period.FOREVER },
                 ]}
               />
 
               <Tooltip
                 className="cursor-pointer"
-                title="How long to keep the backups. Backups older than this period are automatically deleted."
+                title={t('backups.retentionTimePeriodTooltip')}
               >
                 <InfoCircleOutlined className="ml-2" style={{ color: 'gray' }} />
               </Tooltip>
@@ -550,7 +550,7 @@ export const EditLogicalBackupConfigComponent = ({
           {retentionPolicyType === LogicalRetentionPolicyType.Count && (
             <div className="flex items-center">
               <span className="mr-2 shrink-0 text-sm text-gray-600 dark:text-gray-400">
-                Most recent backups
+                {t('backups.mostRecentBackups')}
               </span>
               <InputNumber
                 min={1}
@@ -562,7 +562,7 @@ export const EditLogicalBackupConfigComponent = ({
 
               <Tooltip
                 className="cursor-pointer"
-                title="Keep only the specified number of most recent backups. Older backups beyond this count are automatically deleted."
+                title={t('backups.retentionCountTooltip')}
               >
                 <InfoCircleOutlined className="ml-2" style={{ color: 'gray' }} />
               </Tooltip>
@@ -576,14 +576,12 @@ export const EditLogicalBackupConfigComponent = ({
                   className="cursor-pointer text-xs text-blue-600 hover:text-blue-800"
                   onClick={() => setShowGfsHint(!isShowGfsHint)}
                 >
-                  {isShowGfsHint ? 'Hide' : 'What is GFS (Grandfather-Father-Son)?'}
+                  {isShowGfsHint ? t('backups.hide') : t('backups.whatIsGfs')}
                 </span>
 
                 {isShowGfsHint && (
                   <div className="mt-1 max-w-[280px] text-xs text-gray-600 dark:text-gray-400">
-                    GFS (Grandfather-Father-Son) rotation: keep the last N hourly, daily, weekly,
-                    monthly and yearly backups. This allows keeping backups over long periods of
-                    time within a reasonable storage space.
+                    {t('backups.gfsHint')}
                   </div>
                 )}
               </div>
@@ -592,7 +590,7 @@ export const EditLogicalBackupConfigComponent = ({
                 {isShowGfsHours && (
                   <div className="flex items-center gap-2">
                     <span className="w-[110px] text-sm text-gray-600 dark:text-gray-400">
-                      Hourly backups
+                      {t('backups.hourlyBackups')}
                     </span>
                     <InputNumber
                       min={0}
@@ -606,7 +604,7 @@ export const EditLogicalBackupConfigComponent = ({
 
                 <div className="flex items-center gap-2">
                   <span className="w-[110px] text-sm text-gray-600 dark:text-gray-400">
-                    Daily backups
+                    {t('backups.dailyBackups')}
                   </span>
                   <InputNumber
                     min={0}
@@ -619,7 +617,7 @@ export const EditLogicalBackupConfigComponent = ({
 
                 <div className="flex items-center gap-2">
                   <span className="w-[110px] text-sm text-gray-600 dark:text-gray-400">
-                    Weekly backups
+                    {t('backups.weeklyBackups')}
                   </span>
                   <InputNumber
                     min={0}
@@ -632,7 +630,7 @@ export const EditLogicalBackupConfigComponent = ({
 
                 <div className="flex items-center gap-2">
                   <span className="w-[110px] text-sm text-gray-600 dark:text-gray-400">
-                    Monthly backups
+                    {t('backups.monthlyBackups')}
                   </span>
                   <InputNumber
                     min={0}
@@ -644,7 +642,7 @@ export const EditLogicalBackupConfigComponent = ({
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="w-[110px] text-sm text-gray-600 dark:text-gray-400">
-                    Yearly backups
+                    {t('backups.yearlyBackups')}
                   </span>
                   <InputNumber
                     min={0}
@@ -663,7 +661,7 @@ export const EditLogicalBackupConfigComponent = ({
       {backupConfig.isBackupsEnabled && (
         <>
           <div className="mt-4 mb-1 flex w-full flex-col items-start sm:flex-row sm:items-start">
-            <div className="mt-0 mb-1 min-w-[150px] sm:mt-1 sm:mb-0">Notifications</div>
+            <div className="mt-0 mb-1 min-w-[150px] sm:mt-1 sm:mb-0">{t('backups.notifications')}</div>
             <div className="flex flex-col space-y-2">
               <Checkbox
                 checked={backupConfig.sendNotificationsOn.includes(
@@ -680,7 +678,7 @@ export const EditLogicalBackupConfigComponent = ({
                   updateBackupConfig({ sendNotificationsOn: notifications });
                 }}
               >
-                Backup success
+                {t('backups.backupSuccess')}
               </Checkbox>
 
               <Checkbox
@@ -698,7 +696,7 @@ export const EditLogicalBackupConfigComponent = ({
                   updateBackupConfig({ sendNotificationsOn: notifications });
                 }}
               >
-                Backup failed
+                {t('backups.backupFailed')}
               </Checkbox>
             </div>
           </div>
@@ -710,7 +708,7 @@ export const EditLogicalBackupConfigComponent = ({
           className="flex cursor-pointer items-center text-sm text-blue-600 hover:text-blue-800"
           onClick={() => setShowAdvanced(!isShowAdvanced)}
         >
-          <span className="mr-2">Advanced settings</span>
+          <span className="mr-2">{t('backups.advancedSettings')}</span>
 
           {isShowAdvanced ? (
             <UpOutlined style={{ fontSize: '12px' }} />
@@ -723,7 +721,7 @@ export const EditLogicalBackupConfigComponent = ({
       {isShowAdvanced && backupConfig.isBackupsEnabled && (
         <>
           <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-            <div className="mb-1 min-w-[150px] sm:mb-0">Retry backup if failed</div>
+            <div className="mb-1 min-w-[150px] sm:mb-0">{t('backups.retryBackupIfFailed')}</div>
             <div className="flex items-center">
               <Switch
                 size="small"
@@ -733,7 +731,7 @@ export const EditLogicalBackupConfigComponent = ({
 
               <Tooltip
                 className="cursor-pointer"
-                title="Automatically retry failed backups. Backups can fail due to network failures, storage issues or temporary database unavailability."
+                title={t('backups.retryTooltip')}
               >
                 <InfoCircleOutlined className="ml-2" style={{ color: 'gray' }} />
               </Tooltip>
@@ -742,7 +740,7 @@ export const EditLogicalBackupConfigComponent = ({
 
           {backupConfig.isRetryIfFailed && (
             <div className="mb-1 flex w-full flex-col items-start sm:flex-row sm:items-center">
-              <div className="mb-1 min-w-[150px] sm:mb-0">Max failed tries count</div>
+              <div className="mb-1 min-w-[150px] sm:mb-0">{t('backups.maxFailedTriesCount')}</div>
               <div className="flex items-center">
                 <InputNumber
                   min={1}
@@ -755,7 +753,7 @@ export const EditLogicalBackupConfigComponent = ({
 
                 <Tooltip
                   className="cursor-pointer"
-                  title="Maximum number of retry attempts for failed backups. You will receive a notification when all tries have failed."
+                  title={t('backups.maxFailedTriesTooltip')}
                 >
                   <InfoCircleOutlined className="ml-2" style={{ color: 'gray' }} />
                 </Tooltip>
@@ -768,13 +766,13 @@ export const EditLogicalBackupConfigComponent = ({
       <div className="mt-5 flex">
         {isShowBackButton && (
           <Button className="mr-1" type="primary" ghost onClick={onBack}>
-            Back
+            {t('common.back')}
           </Button>
         )}
 
         {isShowCancelButton && (
           <Button danger ghost className="mr-1" onClick={onCancel}>
-            Cancel
+            {t('common.cancel')}
           </Button>
         )}
 
@@ -785,13 +783,13 @@ export const EditLogicalBackupConfigComponent = ({
           loading={isSaving}
           disabled={!isUnsaved || !isAllFieldsFilled}
         >
-          {saveButtonText || 'Save'}
+          {saveButtonText || t('common.save')}
         </Button>
       </div>
 
       {isShowCreateStorage && (
         <Modal
-          title="Add storage"
+          title={t('storages.addStorage')}
           footer={<div />}
           open={isShowCreateStorage}
           onCancel={() => {
@@ -801,7 +799,7 @@ export const EditLogicalBackupConfigComponent = ({
           maskClosable={false}
         >
           <div className="my-3 max-w-[275px] text-gray-500 dark:text-gray-400">
-            Storage - is a place where backups will be stored (local disk, S3, Google Drive, etc.)
+            {t('storages.description')}
           </div>
 
           <EditStorageComponent
@@ -830,10 +828,10 @@ export const EditLogicalBackupConfigComponent = ({
           onDecline={() => {
             setIsShowWarn(false);
           }}
-          description="If you change the storage, all backups in this storage will be deleted."
+          description={t('backups.changeStorageWarning')}
           actionButtonColor="red"
-          actionText="I understand"
-          cancelText="Cancel"
+          actionText={t('backups.iUnderstand')}
+          cancelText={t('common.cancel')}
           hideCancelButton
         />
       )}

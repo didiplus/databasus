@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { logicalBackupConfigApi } from '../../../entity/backups/logical';
 import { type Storage, storageApi } from '../../../entity/storages';
 import { type WorkspaceResponse, workspaceApi } from '../../../entity/workspaces';
+import { useTranslation } from '../../../shared/i18n';
 
 interface Props {
   storage: Storage;
@@ -12,6 +13,8 @@ interface Props {
 }
 
 export const StorageTransferDialogComponent = ({ storage, onClose, onTransferred }: Props) => {
+  const { t } = useTranslation();
+
   const [isLoading, setIsLoading] = useState(true);
   const [isStorageInUse, setIsStorageInUse] = useState(false);
   const [workspaces, setWorkspaces] = useState<WorkspaceResponse[]>([]);
@@ -58,7 +61,7 @@ export const StorageTransferDialogComponent = ({ storage, onClose, onTransferred
 
   return (
     <Modal
-      title="Transfer storage to another workspace"
+      title={t('storages.transferTitle')}
       footer={null}
       open={true}
       onCancel={onClose}
@@ -71,37 +74,36 @@ export const StorageTransferDialogComponent = ({ storage, onClose, onTransferred
       ) : isStorageInUse ? (
         <div className="py-3">
           <div className="text-gray-700 dark:text-gray-300">
-            This storage is used by some databases. Please transfer or remove related databases
-            first.
+            {t('storages.transferUsedByDatabases')}
           </div>
 
           <div className="mt-5">
             <Button type="primary" onClick={onClose}>
-              OK
+              {t('common.ok')}
             </Button>
           </div>
         </div>
       ) : (
         <div className="py-3">
           <div className="mb-3 text-gray-500 dark:text-gray-400">
-            Select a workspace to transfer this storage to.
+            {t('storages.selectWorkspaceToTransfer')}
           </div>
 
           <div className="mb-5 flex items-center">
-            <div className="min-w-[120px]">Target workspace</div>
+            <div className="min-w-[120px]">{t('storages.targetWorkspace')}</div>
 
             <Select
               value={selectedWorkspaceId}
               onChange={setSelectedWorkspaceId}
               className="min-w-[200px] grow"
-              placeholder="Select workspace"
+              placeholder={t('common.selectWorkspace')}
               options={workspaces.map((w) => ({ label: w.name, value: w.id }))}
             />
           </div>
 
           <div className="flex gap-2">
             <Button type="default" onClick={onClose}>
-              Cancel
+              {t('common.cancel')}
             </Button>
 
             <Button
@@ -110,7 +112,7 @@ export const StorageTransferDialogComponent = ({ storage, onClose, onTransferred
               loading={isTransferring}
               disabled={!selectedWorkspaceId || isTransferring}
             >
-              Transfer
+              {t('common.transfer')}
             </Button>
           </div>
         </div>
